@@ -1,0 +1,46 @@
+{
+  "result": [
+    {
+      "scriptId": "366",
+      "url": "file:///Users/repayment.inc/W/dev/WorkSrcSpace/GithubRemoteRepositorys/motion_stock2/src/components/Count.test.tsx",
+      "functions": [
+        {
+          "functionName": "",
+          "ranges": [{ "startOffset": 0, "endOffset": 3132, "count": 1 }],
+          "isBlockCoverage": true
+        },
+        {
+          "functionName": "",
+          "ranges": [{ "startOffset": 13, "endOffset": 3132, "count": 1 }],
+          "isBlockCoverage": true
+        },
+        {
+          "functionName": "",
+          "ranges": [{ "startOffset": 713, "endOffset": 1426, "count": 0 }],
+          "isBlockCoverage": false
+        }
+      ]
+    },
+    {
+      "scriptId": "720",
+      "url": "file:///Users/repayment.inc/W/dev/WorkSrcSpace/GithubRemoteRepositorys/motion_stock2/src/components/Count.tsx",
+      "functions": [
+        {
+          "functionName": "",
+          "ranges": [{ "startOffset": 0, "endOffset": 3190, "count": 1 }],
+          "isBlockCoverage": true
+        },
+        {
+          "functionName": "",
+          "ranges": [{ "startOffset": 13, "endOffset": 3190, "count": 1 }],
+          "isBlockCoverage": true
+        },
+        {
+          "functionName": "TextInput",
+          "ranges": [{ "startOffset": 431, "endOffset": 1743, "count": 0 }],
+          "isBlockCoverage": false
+        }
+      ]
+    }
+  ]
+}
