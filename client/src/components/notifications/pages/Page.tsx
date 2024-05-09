@@ -13,20 +13,23 @@ export const Page: React.FC = () => {
   const [user, setUser] = React.useState<User>();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [signUpInfo, setSignUpInfo] = useState({ username: '', email: '', password: '' });
 
   const handleSignUp = async () => {
     try {
-      const newUser = await registerUser({
-        username: "admin3",
-        email: "admin15@gmail.com",
-        password: "pass"
-      });
+      const newUser = await registerUser(signUpInfo);
       setUser(newUser);
+      setIsSignUpModalOpen(false);
     } catch (error) {
       console.error('Signup failed:', error);
       setErrorMessage('Signup failed');
       setIsErrorModalOpen(true);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignUpInfo({ ...signUpInfo, [e.target.name]: e.target.value });
   };
 
   return (
@@ -35,13 +38,44 @@ export const Page: React.FC = () => {
         user={user}
         onLogin={() => setUser({ name: "Jane Doe" })}
         onLogout={() => setUser(undefined)}
-        onCreateAccount={handleSignUp}
+        onCreateAccount={() => setIsSignUpModalOpen(true)}
       />
       <ErrorModal
         isOpen={isErrorModalOpen}
         onClose={() => setIsErrorModalOpen(false)}
         errorMessage={errorMessage}
       />
+
+      {isSignUpModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-4 rounded">
+            <h2>Sign Up</h2>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={signUpInfo.username}
+              onChange={handleInputChange}
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={signUpInfo.email}
+              onChange={handleInputChange}
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={signUpInfo.password}
+              onChange={handleInputChange}
+            />
+            <button onClick={handleSignUp}>Sign Up</button>
+            <button onClick={() => setIsSignUpModalOpen(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
 
       <div className="bg-hero-pattern bg-cover bg-center h-screen flex justify-center items-center">
 
