@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ErrorModalProps {
   isOpen: boolean;
@@ -6,7 +6,11 @@ interface ErrorModalProps {
   errorMessage: string;
 }
 
-const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, onClose, errorMessage }) => {
+const ErrorModal: React.FC<ErrorModalProps> = ({
+  isOpen,
+  onClose,
+  errorMessage,
+}) => {
   if (!isOpen) return null;
 
   return (

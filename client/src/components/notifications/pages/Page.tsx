@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom'; // Added
+import { useNavigate } from "react-router-dom"; // Added
 
 import { Header } from "@/components/notifications/organisms/Header";
 // import "./page.css";
 import { registerUser } from "@/hooks/useAPI";
 import ErrorModal from "../organisms/ErrorModal";
-import SignUpModal from "../organisms/SignUpModal"
+import SignUpModal from "../organisms/SignUpModal";
 
 type User = {
   name: string;
@@ -15,19 +15,23 @@ export const Page: React.FC = () => {
   const navigate = useNavigate(); // Added
   const [user, setUser] = React.useState<User>();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
-  const [signUpInfo, setSignUpInfo] = useState({ username: '', email: '', password: '' });
+  const [signUpInfo, setSignUpInfo] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
   const handleSignUp = async () => {
     try {
       const newUser = await registerUser(signUpInfo);
       setUser(newUser);
       setIsSignUpModalOpen(false);
-      navigate('/dashboard'); // Navigate to dashboard after successful signup
+      navigate("/dashboard"); // Navigate to dashboard after successful signup
     } catch (error) {
-      console.error('Signup failed:', error);
-      setErrorMessage('Signup failed');
+      console.error("Signup failed:", error);
+      setErrorMessage("Signup failed");
       setIsErrorModalOpen(true);
     }
   };
@@ -60,6 +64,8 @@ export const Page: React.FC = () => {
         onEmailChange={handleInputChange}
         onPasswordChange={handleInputChange}
         onSignUp={handleSignUp}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
       />
 
       {/* // {isSignUpModalOpen && ( 
@@ -95,26 +101,20 @@ export const Page: React.FC = () => {
       */}
 
       <div className="bg-hero-pattern bg-cover bg-center h-screen flex justify-center items-center">
-
-      <section className="storybook-page max-w-xl bg-gray-500">
-        <h2 className="text-5xl text-red-500">Go to the Gym</h2>
-        <p>
-          おすすめプロテインはこちら{" "}
-          <a
-            href="https://componentdriven.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <strong>こちら</strong>
-          </a>{" "}
-          から!!
-        </p>
-
-
-        
-       
-        
-      </section>
+        <section className="storybook-page max-w-xl bg-gray-500">
+          <h2 className="text-5xl text-red-500">Go to the Gym</h2>
+          <p>
+            おすすめプロテインはこちら{" "}
+            <a
+              href="https://componentdriven.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <strong>こちら</strong>
+            </a>{" "}
+            から!!
+          </p>
+        </section>
       </div>
     </article>
   );
