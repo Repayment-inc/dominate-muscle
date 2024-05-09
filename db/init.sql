@@ -4,3 +4,10 @@ CREATE TABLE users (
   email VARCHAR(255) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL
 );
+
+
+-- 既存のusersテーブルが存在する場合は削除
+-- DROP TABLE IF EXISTS users;
+
+  -- id SERIAL PRIMARY KEY, (一旦弾く)
+  -- id VARCHAR(255) UNIQUE NOT NULL,

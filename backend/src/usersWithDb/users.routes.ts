@@ -33,12 +33,19 @@ dUserRouter.post("/dregister", async (req: Request, res: Response) => {
         "INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)",
         [newUser?.id, newUser?.username, newUser?.email, newUser?.password]
       );
-    } catch (err) {
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          error:
+            "Query error: " +
+            "クエリが正常に処理されませんでした" +
+            err.message,
+        });
+      } else {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
           error: "Query error: " + "クエリが正常に処理されませんでした",
         });
+      }
     }
     return res
       .status(StatusCodes.CREATED)

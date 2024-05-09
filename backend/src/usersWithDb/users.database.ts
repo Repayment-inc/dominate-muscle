@@ -18,7 +18,7 @@ function loadUsers(): Users {
 function saveUsers() {
   try {
     fs.writeFileSync("./users.json", JSON.stringify(users), "utf-8");
-    console.log(`User saved successfully!`);
+    console.log(`Users saved xxx successfully!`);
   } catch (error) {
     console.log(`Error : ${error}`);
   }
