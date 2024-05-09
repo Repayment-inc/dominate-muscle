@@ -3,12 +3,16 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { Button } from "./components/ui/button";
+import { Page } from "@/components/notifications/pages/Page";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
+      <div>
+        <Page ></Page>
+      </div>
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
