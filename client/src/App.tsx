@@ -3,21 +3,12 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { Button } from "./components/ui/button";
-import { Page } from "@/components/notifications/pages/Page";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dashboard from "@/components/notifications/pages/Dashboard";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
-      <Router>
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Page />} />
-        </Routes>
-      </Router>
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />

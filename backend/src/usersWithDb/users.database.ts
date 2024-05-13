@@ -2,7 +2,6 @@ import { User, UnitUser, Users } from "./users.interface";
 import bcrypt from "bcryptjs";
 import { v4 as random } from "uuid";
 import fs from "fs";
-import { pool } from "../db/database";
 
 let users: Users = loadUsers();
 
@@ -57,40 +56,18 @@ export const create = async (userData: UnitUser): Promise<UnitUser | null> => {
   return user;
 };
 
-// ユーザーデータの取得
 export const findByEmail = async (
   user_email: string
 ): Promise<null | UnitUser> => {
-  const query = "SELECT * FROM users WHERE email = $1";
-  const values = [user_email];
+  const allUsers = await findAll();
 
-  try {
-    const res = await pool.query(query, values);
+  const getUser = allUsers.find((result) => user_email === result.email);
 
-    // emailが存在しない場合
-    if (res.rows.length === 0) {
-      return null;
-    }
-
-    // emailに対応するusernameが見つからない場合
-    // if (!res.rows[0].username) {
-    //   return null;
-    // }
-
-    // user dataの作成
-    const user: UnitUser = {
-      id: res.rows[0].id,
-      username: res.rows[0].username,
-      email: res.rows[0].email,
-      password: res.rows[0].password, // パスワードも含めて返す場合
-    };
-
-    return user;
-  } catch (err) {
-    console.error(err);
-
+  if (!getUser) {
     return null;
   }
+
+  return getUser;
 };
 
 export const comparePassword = async (
@@ -99,13 +76,12 @@ export const comparePassword = async (
 ): Promise<null | UnitUser> => {
   const user = await findByEmail(email);
 
-  // 復号化したpasswordの照合
-  const isMatchDecryptPassword = await bcrypt.compare(
+  const decryptPassword = await bcrypt.compare(
     supplied_password,
     user!.password
   );
 
-  if (!isMatchDecryptPassword) {
+  if (!decryptPassword) {
     return null;
   }
 
