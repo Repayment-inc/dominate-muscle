@@ -1,13 +1,18 @@
 export interface User {
-    username : string,
-    email : string,
-    password : string
+  username: string;
+  email: string;
+  password: string;
 }
 
 export interface UnitUser extends User {
-    id : string
+  id: string;
 }
 
 export interface Users {
-    [key : string] : UnitUser
+  [key: string]: UnitUser;
+}
+
+export interface JwtToken {
+  token: string;
+  type: string;
 }
