@@ -1,10 +1,12 @@
 import express, { Request, Response } from "express";
-import { UnitUser, User } from "./users.interface";
+import { UnitUser, User, JwtToken } from "./users.interface";
 import { StatusCodes } from "http-status-codes";
 import * as database from "./users.database";
 import { pool } from "../db/database";
 import jwt from "jsonwebtoken";
 import * as dotevnv from "dotenv";
+import { ApiResponse } from "../common/interface/apiResponse.interface";
+import { logInfo, logError } from "../common/utils/logger";
 
 export const dUserRouter = express.Router();
 
@@ -58,49 +60,91 @@ dUserRouter.post("/dregister", async (req: Request, res: Response) => {
 });
 
 // ログイン
-dUserRouter.post("/dlogin", async (req: Request, res: Response) => {
+dUserRouter.post("/dlogin", async (req: Request, res: Response, next) => {
   try {
     const { email, password } = req.body;
 
-    // 入力チェック
     if (!email || !password) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: "Please provide all the required parameters.." });
+      logInfo("Missing parameters for login.", 90);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        resultCode: 90,
+        message: "Please provide all the required parameters.",
+        resultData: {
+          fields: {
+            email: email ? null : "Email is required.",
+            password: password ? null : "Password is required.",
+          },
+        },
+      });
     }
 
     const user = await database.findByEmail(email);
-
-    // emailに対応するuserが見つからない場合
     if (!user) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "No user exists with the email provided.." });
+      logInfo(`No user found for email: ${email}`, 90);
+      return res.status(StatusCodes.NOT_FOUND).json({
+        resultCode: 90,
+        message: "No user exists with the email provided.",
+        resultData: {
+          hint: "Check if the email is correct or contact support.",
+        },
+      });
     }
 
     const comparePassword = await database.comparePassword(email, password);
-
     if (!comparePassword) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: `Incorrect Password!` });
+      logInfo("Incorrect password attempt.", 90);
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        resultCode: 90,
+        message: "Incorrect Password!",
+        resultData: {
+          hint: "Ensure the password is correct or reset your password.",
+        },
+      });
     }
 
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ error: "JWT secret is undefined." });
+      logError(new Error("JWT secret is undefined."), 99);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        resultCode: 99,
+        message: "JWT secret is undefined.",
+        resultData: {
+          error: "Critical configuration error, contact system administrator.",
+        },
+      });
     }
 
-    // 有効期限1時間のトークン発行
-    const token = jwt.sign({ id: user.id, email: user.email }, secret, {
+    const jwtToken = jwt.sign({ id: user.id, email: user.email }, secret, {
       expiresIn: "1h",
     });
+    const tokendata = { token: jwtToken, type: "Bearer" };
+    const responseData: ApiResponse<typeof tokendata> = {
+      resultCode: 0,
+      message: "",
+      resultData: tokendata,
+    };
 
-    return res.status(StatusCodes.OK).json({ token, type: "Bearer" });
+    return res.status(StatusCodes.OK).json(responseData);
   } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+    if (error instanceof Error) {
+      logError(error, 99);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        resultCode: 99,
+        message: error.message,
+        resultData: {
+          error: "Unexpected error occurred, please try again later.",
+        },
+      });
+    } else {
+      logError(new Error("An unknown error occurred"), 99);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        resultCode: 99,
+        message: "An unknown error occurred",
+        resultData: {
+          error: "Unknown error, contact support.",
+        },
+      });
+    }
   }
 });
 
