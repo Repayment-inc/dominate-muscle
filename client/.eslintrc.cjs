@@ -33,4 +33,5 @@ module.exports = {
   settings: {
     react: { version: "detect" }, // 追加
   },
+  ignorePatterns: ["src/components/ui/**/*"], // uiコンポーネントはチェックしないようにする
 };

@@ -5,7 +5,7 @@ export interface User {
 }
 
 export interface UnitUser extends User {
-  id: string;
+  id: number;
 }
 
 export interface Users {
@@ -16,3 +16,9 @@ export interface JwtToken {
   token: string;
   type: string;
 }
+
+export type TokenData = {
+  accessToken: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: Date;
+};

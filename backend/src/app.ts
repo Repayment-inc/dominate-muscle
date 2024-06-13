@@ -5,6 +5,11 @@ import helmet from "helmet";
 import { userRouter } from "./users/users.routes";
 import { productRouter } from "./products/product.routes";
 import { dUserRouter } from "./usersWithDb/users.routes";
+import { workoutsRouter } from "./workouts/workout.routes";
+import { ApiResponse } from "./common/utils/response";
+import { logError } from "./common/utils/logger";
+import { exercisesRouter } from "./exercises/exercises.routes";
+// import "./types"; // 型定義ファイルをインポート。しばらく様子見て、問題なければ削除で良い
 
 dotevnv.config();
 
@@ -23,7 +28,28 @@ app.use(helmet());
 
 app.use("/", userRouter);
 app.use("/", productRouter);
-app.use("/", dUserRouter);
+app.use("/api/auth", dUserRouter);
+app.use("/api/exercise", exercisesRouter);
+app.use("/api/workouts", workoutsRouter);
+
+//-------------------------
+
+// エラーハンドリングミドルウェア　winston導入時に必要になるかも
+// app.use(
+//   (
+//     err: Error,
+//     req: express.Request,
+//     res: express.Response,
+//     next: express.NextFunction
+//   ) => {
+//     logError(err); // エラーメッセージをログに記録
+//     const response: ApiResponse<null> = {
+//       resultCode: err.message === "User not found" ? 90 : 99,
+//       message: err.message,
+//     };
+//     res.status(500).json(response);
+//   }
+// );
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

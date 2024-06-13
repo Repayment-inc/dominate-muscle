@@ -1,12 +1,20 @@
 import express, { Request, Response } from "express";
-import { UnitUser, User, JwtToken } from "./users.interface";
+import { UnitUser, User, JwtToken, TokenData } from "./users.interface";
 import { StatusCodes } from "http-status-codes";
 import * as database from "./users.database";
+import * as logic from "./users.logic";
 import { pool } from "../db/database";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import * as dotevnv from "dotenv";
-import { ApiResponse } from "../common/interface/apiResponse.interface";
+import {
+  createSuccessResponse,
+  ApplicationError,
+  SystemError,
+  ApiResponse,
+} from "../common/utils/response";
 import { logInfo, logError } from "../common/utils/logger";
+// import { createSuccessResponse, createErrorResponse } from '../common/utils/response';
+import { userValidation } from "./users.validation";
 
 export const dUserRouter = express.Router();
 
@@ -15,47 +23,58 @@ dUserRouter.post("/dregister", async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: `Please provide all the required parameters..` });
+    // validationチェック
+    const validated = userValidation(username, email, password);
+    if (validated) {
+      const responseData = ApplicationError(validated.message, validated.error);
+      return res.status(StatusCodes.BAD_REQUEST).json(responseData);
     }
 
-    const user = await database.findByEmail(email);
-
-    if (user) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: `This email has already been registered..` });
-    }
-
-    const newUser = await database.create(req.body);
-
-    // Execute a SQL INSERT statement
-    try {
-      await pool.query(
-        "INSERT INTO users (id, username, email, password) VALUES ($1, $2, $3, $4)",
-        [newUser?.id, newUser?.username, newUser?.email, newUser?.password]
+    // 既存ユーザチェック;
+    const checkResult = await logic.checkEmailExists(email);
+    if (checkResult) {
+      const responseData = ApplicationError(
+        "ApplicationError",
+        `${email} は既に登録されています`
       );
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          error:
-            "Query error: " +
-            "クエリが正常に処理されませんでした" +
-            err.message,
-        });
-      } else {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          error: "Query error: " + "クエリが正常に処理されませんでした",
-        });
-      }
+      return res.status(StatusCodes.BAD_REQUEST).json(responseData);
     }
-    return res
-      .status(StatusCodes.CREATED)
-      .json({ message: "Task created successfully" });
-  } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+
+    // ユーザの登録;
+    const registedUserId = await logic.create(req.body);
+    if (!registedUserId) {
+      const responseData = ApplicationError(
+        "System Error",
+        `ユーザーの登録に失敗しました`
+      );
+      return res.status(StatusCodes.BAD_REQUEST).json(responseData);
+    }
+
+    // トークン生成
+    const tokens: TokenData = await logic.generateTokens(registedUserId);
+
+    // レスポンス生成
+    const responseData = createSuccessResponse(
+      "User registered successfully",
+      {}
+      // tokens
+    );
+
+    return res.status(StatusCodes.CREATED).json(responseData);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      const responseData = SystemError(
+        "ユーザ登録に失敗しました。",
+        err.message
+      );
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(responseData);
+    } else {
+      const responseData = SystemError(
+        "ユーザ登録に失敗しました。",
+        "原因不明のエラー"
+      );
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(responseData);
+    }
   }
 });
 
@@ -78,8 +97,8 @@ dUserRouter.post("/dlogin", async (req: Request, res: Response, next) => {
       });
     }
 
-    const user = await database.findByEmail(email);
-    if (!user) {
+    const checkResult = await logic.checkEmailExists(email);
+    if (!checkResult) {
       logInfo(`No user found for email: ${email}`, 90);
       return res.status(StatusCodes.NOT_FOUND).json({
         resultCode: 90,
@@ -90,7 +109,7 @@ dUserRouter.post("/dlogin", async (req: Request, res: Response, next) => {
       });
     }
 
-    const comparePassword = await database.comparePassword(email, password);
+    const comparePassword = await logic.comparePassword(email, password);
     if (!comparePassword) {
       logInfo("Incorrect password attempt.", 90);
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -102,27 +121,18 @@ dUserRouter.post("/dlogin", async (req: Request, res: Response, next) => {
       });
     }
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      logError(new Error("JWT secret is undefined."), 99);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        resultCode: 99,
-        message: "JWT secret is undefined.",
-        resultData: {
-          error: "Critical configuration error, contact system administrator.",
-        },
-      });
-    }
-
-    const jwtToken = jwt.sign({ id: user.id, email: user.email }, secret, {
-      expiresIn: "1h",
-    });
-    const tokendata = { token: jwtToken, type: "Bearer" };
-    const responseData: ApiResponse<typeof tokendata> = {
-      resultCode: 0,
-      message: "",
-      resultData: tokendata,
+    // トークン生成
+    const tokens: TokenData = await logic.generateTokens(checkResult.id);
+    const tokendata = {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      type: "Bearer",
     };
+
+    const responseData = createSuccessResponse(
+      "ログインに成功しました",
+      tokendata
+    );
 
     return res.status(StatusCodes.OK).json(responseData);
   } catch (error) {
@@ -145,6 +155,60 @@ dUserRouter.post("/dlogin", async (req: Request, res: Response, next) => {
         },
       });
     }
+  }
+});
+
+dUserRouter.post("/refreshToken", async (req: Request, res: Response, next) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(401).json({ error: "Refresh token is required" });
+  }
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_REFRESH_SECRET as string
+    ) as JwtPayload;
+    const result = await pool.query(
+      "SELECT * FROM refresh_tokens WHERE token = $1",
+      [token]
+    );
+
+    if (
+      result.rows.length === 0 ||
+      new Date(result.rows[0].expires_at) < new Date()
+    ) {
+      return res
+        .status(403)
+        .json({ error: "Invalid or expired refresh token" });
+    }
+
+    const userId = decoded.id;
+    const tokens = await logic.generateTokens(userId);
+
+    await pool.query("DELETE FROM refresh_tokens WHERE token = $1", [token]);
+
+    await pool.query(
+      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
+      [userId, tokens.refreshToken, tokens.refreshTokenExpiresAt]
+    );
+
+    const tokendata = {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      type: "Bearer",
+    };
+
+    const responseData = createSuccessResponse(
+      "リフレッシュトークンの更新に成功しました。",
+      tokendata
+    );
+
+    res.json(responseData);
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    res.status(403).json({ error: "Invalid refresh token" });
   }
 });
 
