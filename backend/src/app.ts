@@ -1,5 +1,5 @@
 import express from "express";
-import * as dotevnv from "dotenv";
+import * as dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import { userRouter } from "./users/users.routes";
@@ -11,13 +11,14 @@ import { logError } from "./common/utils/logger";
 import { exercisesRouter } from "./exercises/exercises.routes";
 // import "./types"; // 型定義ファイルをインポート。しばらく様子見て、問題なければ削除で良い
 
-dotevnv.config();
+dotenv.config();
 
 if (!process.env.PORT) {
   console.log(`No port value specified...`);
 }
 
-const PORT = parseInt(process.env.PORT as string, 10);
+// 環境変数PORTが設定されていない場合は3000を使用
+const PORT = parseInt(process.env.PORT as string, 10) || 3000;
 
 const app = express();
 
@@ -51,6 +52,10 @@ app.use("/api/workouts", workoutsRouter);
 //   }
 // );
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+// vercelにbuildする際はlistenを消してexport default　appして、verceltsを記載
+// app.listen(PORT, () => {
+//   console.log(`Server is listening on port ${PORT}`);
+// });
+
+// サーバーレス関数の数を減らすために統合
+export default app;

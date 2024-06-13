@@ -36,16 +36,28 @@ type ResultData = {
   exercises: Exercise[];
 };
 
+type Set = {
+  setNumber: number;
+  weight: number;
+  reps: number;
+};
+
+type SelectedExercise = {
+  exerciseId: number;
+  exerciseName: string;
+  sets: Set[];
+};
+
 export const TrainingPage: React.FC = () => {
   const [date, setDate] = useState(""); // 日付の状態を追加
   const [exerciseCount, setExerciseCount] = useState(0);
-  const [selectedExercises, setSelectedExercises] = useState(
-    Array(0).fill({
-      exerciseId: "",
+  const [selectedExercises, setSelectedExercises] = useState<SelectedExercise[]>([
+    {
+      exerciseId: 0,
       exerciseName: "",
       sets: [{ setNumber: 1, weight: 0.0, reps: 0 }],
-    }),
-  );
+    },
+  ]);
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -136,12 +148,18 @@ export const TrainingPage: React.FC = () => {
     value: string,
   ) => {
     const newSelectedExercises = [...selectedExercises];
-    newSelectedExercises[exerciseIndex].sets[setIndex][field] =
-      field === "weight" || field === "reps" ? parseFloat(value) : value;
+    const currentSet = newSelectedExercises[exerciseIndex].sets[setIndex];
+
+    if (field === "weight") {
+      currentSet.weight = parseFloat(value);
+    } else if (field === "reps") {
+      currentSet.reps = parseFloat(value);
+    }
+
     setSelectedExercises(newSelectedExercises);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     // 日付が入力されていない場合のバリデーション
@@ -168,7 +186,7 @@ export const TrainingPage: React.FC = () => {
     // exerciseNameを除外したworkoutデータを作成
     const workoutData = selectedExercises.map(({ exerciseId, sets }) => ({
       exerciseId,
-      sets: sets.map((set) => ({
+      sets: sets.map((set: Set) => ({
         setNumber: set.setNumber,
         reps: set.reps,
         weight: set.weight,
@@ -221,7 +239,7 @@ export const TrainingPage: React.FC = () => {
                 }
               >
                 <SelectTrigger className="">
-                  <SelectValue placeholder="種目を選択" />
+                  <SelectValue placeholder="種を選択" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>

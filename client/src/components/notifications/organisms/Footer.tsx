@@ -20,7 +20,7 @@ export const Footer = () => {
     {
       name: "Discussions",
       to: "./discussions",
-      icon: (props) => <GiMuscleUp {...props} />,
+      icon: (props: React.SVGProps<SVGSVGElement>) => <GiMuscleUp {...props} />,
     },
     { name: "toppage", to: "./top", icon: GiMuscleUp },
     // checkAccess({ allowedRoles: [ROLES.ADMIN] }) && {
