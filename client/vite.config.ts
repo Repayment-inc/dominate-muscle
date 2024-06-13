@@ -11,4 +11,7 @@ export default defineConfig({
     environment: "happy-dom",
     setupFiles: ["./vitest-setup.ts"],
   },
+  build: {
+    outDir: "./dist",
+  },
 });

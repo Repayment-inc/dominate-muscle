@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "npm run build --prefix frontend && npm run build --prefix backend",
+    "start": "node backend/dist/index.js"
+  },
   "dependencies": {
     "pg": "^8.11.5"
   }
