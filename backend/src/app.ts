@@ -27,8 +27,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
 
-app.use("/api/auth", userRouter);
-app.use("/api/auth", productRouter);
+// app.use("/api/auth", userRouter);
+// app.use("/api/auth", productRouter);
 app.use("/api/auth", dUserRouter);
 app.use("/api/exercise", exercisesRouter);
 app.use("/api/workouts", workoutsRouter);
@@ -52,10 +52,12 @@ app.use("/api/workouts", workoutsRouter);
 //   }
 // );
 
-// vercel CLIでbuildする際はlistenを消してexport default　appして、verceltsを記載
+// Vercel CLIでbuildする際はlistenを消してexport default appして、vercel.jsonを記載
+// if (process.env.NODE_ENV !== "vercel") {
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
+// }
 
 // サーバーレス関数の数を減らすために統合
-// export default app;
+export default app;
