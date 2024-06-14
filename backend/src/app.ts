@@ -53,11 +53,11 @@ app.use("/api/workouts", workoutsRouter);
 // );
 
 // Vercel CLIでbuildする際はlistenを消してexport default appして、vercel.jsonを記載
-if (process.env.NODE_ENV !== "vercel") {
-  app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-  });
-}
+// if (process.env.NODE_ENV !== "vercel") {
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
+// }
 
 // サーバーレス関数の数を減らすために統合
 export default app;
