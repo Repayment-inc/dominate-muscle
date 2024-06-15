@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
@@ -52,6 +52,8 @@ app.use("/api/workouts", workoutsRouter);
 //   }
 // );
 
+app.get("/", (req, res) => res.send("Express on Vercel"));
+
 // Vercel CLIでbuildする際はlistenを消してexport default appして、vercel.jsonを記載
 // if (process.env.NODE_ENV !== "vercel") {
 app.listen(PORT, () => {
@@ -59,5 +61,21 @@ app.listen(PORT, () => {
 });
 // }
 
-// サーバーレス関数の数を減らすために統合
-export default app;
+// テストーーー
+// const router = Router();
+// router.get("/", (_, res) => {
+//   res.json({
+//     message: "Hello from express!",
+//   });
+// });
+
+// router.get("/posts/:slug", (req, res) => {
+//   res.json({
+//     post: {
+//       title: "Test Post",
+//       slug: req.params["slug"],
+//     },
+//   });
+// });
+// app.use("/api/express", router);
+// ここまでーーーーーーーーーーーーー
