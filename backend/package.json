@@ -5,18 +5,16 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --pretty --respawn ./src/app.ts",
-    "tsc-build": "tsc --build",
+    "dev": "ts-node-dev --pretty --respawn ./api/index.ts",
+    "build": "tsc --build",
     "clean": "tsc --build --clean",
     "clean-build": "npm run clean && npm run tsc-build",
     "ts.check": "tsc --project tsconfig.json",
-    "build": "rimraf dist && tsc",
-		"add-build": "git add dist"
+    "build-rimraf": "rimraf dist && tsc"
   },
   "pre-commit": [
 		"ts.check",
-		"build",
-		"add-build"
+		"build-rimraf"
 	],
   "keywords": [],
   "author": "",
