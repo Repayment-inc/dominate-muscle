@@ -22,17 +22,23 @@ import { Button } from "@/components/ui/button";
 import { WorkoutHistoryEntry } from "@/types/workoutHistoryTypes";
 
 const groupByMonth = (workoutHistory: WorkoutHistoryEntry[]) => {
-  return workoutHistory.reduce<{ [key: string]: WorkoutHistoryEntry[] }>((acc, workout) => {
-    const month = workout.date.slice(0, 7); // YYYY-MM形式
-    if (!acc[month]) {
-      acc[month] = [];
-    }
-    acc[month].push(workout);
-    return acc;
-  }, {});
+  return workoutHistory.reduce<{ [key: string]: WorkoutHistoryEntry[] }>(
+    (acc, workout) => {
+      const month = workout.date.slice(0, 7); // YYYY-MM形式
+      if (!acc[month]) {
+        acc[month] = [];
+      }
+      acc[month].push(workout);
+      return acc;
+    },
+    {},
+  );
 };
 
-const sortWorkouts = (workouts: WorkoutHistoryEntry[], order: 'asc' | 'desc') => {
+const sortWorkouts = (
+  workouts: WorkoutHistoryEntry[],
+  order: "asc" | "desc",
+) => {
   return workouts.slice().sort((a, b) => {
     if (order === "desc") {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -44,7 +50,8 @@ const sortWorkouts = (workouts: WorkoutHistoryEntry[], order: 'asc' | 'desc') =>
 export const History: React.FC = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   // const [selectedWorkout, setSelectedWorkout] = useState(null);
-  const [selectedWorkout2, setSelectedWorkout2] = useState<WorkoutHistoryEntry | null>(null);
+  const [selectedWorkout2, setSelectedWorkout2] =
+    useState<WorkoutHistoryEntry | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   // const groupedWorkouts = groupByMonth(
   //   sortWorkouts(workoutHistoryData.workoutHistory, sortOrder),
@@ -182,4 +189,3 @@ export const History: React.FC = () => {
     </>
   );
 };
-

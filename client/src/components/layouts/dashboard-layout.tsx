@@ -3,8 +3,8 @@ import {
   PanelLeft,
   Folder,
   // Users,
-  User2
- } from "lucide-react";
+  User2,
+} from "lucide-react";
 // import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 

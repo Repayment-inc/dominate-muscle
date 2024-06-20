@@ -29,6 +29,7 @@ module.exports = {
   plugins: ["@typescript-eslint", "react"],
   rules: {
     "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
   },
   settings: {
     react: { version: "detect" }, // 追加
