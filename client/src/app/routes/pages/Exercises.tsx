@@ -37,7 +37,9 @@ type SelectedExerciseHistory = {
 
 export const Exercises: React.FC = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null,
+  );
   const [selectedExerciseHistory, setSelectedExerciseHistory] = useState<
     SelectedExerciseHistory[]
   >([]);
