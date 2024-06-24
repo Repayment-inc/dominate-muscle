@@ -121,7 +121,9 @@ const ExerciseChart: React.FC<{ data: ExerciseData[] }> = ({ data }) => {
           dataKey="exerciseCounts"
           onMouseEnter={onPieEnter}
         >
-          {data.map((entry, index) => (
+          {data.map((
+            _,
+            index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>

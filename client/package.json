@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "tsc": "tsc",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -13,7 +14,6 @@
     "lint": "eslint src",
     "fix:prettier": "prettier . --write",
     "fix:eslint": "eslint . --ext .ts,.tsx --fix",
-    "prepare": "husky install",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -84,7 +84,7 @@
     "prettier": "^3.1.1",
     "storybook": "^7.6.7",
     "tailwindcss": "^3.4.3",
-    "typescript": "^5.2.2",
+    "typescript": "^5.5.2",
     "vite": "^5.0.8",
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "^1.1.3"

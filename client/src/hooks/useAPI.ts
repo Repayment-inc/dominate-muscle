@@ -7,49 +7,26 @@ export async function registerUser(userData: {
   email: string;
   password: string;
 }) {
-  const response = await fetch("http://localhost:7000/api/auth/dregister", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (response.status === 400) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Invalid request");
+  try {
+    // if(response.)
+    const response = await apiClient.post("/auth/dregister", userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user regist:", error);
   }
-
-  if (!response.ok) {
-    throw new Error("Registration failed");
-  }
-
-  return response.json();
 }
 
 // ログインhook
 export async function loginUser(userData: { email: string; password: string }) {
-  const response = await fetch("http://localhost:7000/api/auth/dlogin", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Login failed");
+  try {
+    const response = await apiClient.post("/auth/dlogin", userData);
+    console.log(response.data.resultData);
+    localStorage.setItem("accessToken", response.data.resultData.accessToken);
+    localStorage.setItem("refreshToken", response.data.resultData.refreshToken);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching login:", error);
   }
-
-  const res = await response.json(); // JSONデータをawaitで待つ
-
-  console.log(res.resultData);
-
-  localStorage.setItem("accessToken", res.resultData.accessToken);
-  localStorage.setItem("refreshToken", res.resultData.refreshToken);
-
-  return res;
 }
 
 // ワークアウト履歴
