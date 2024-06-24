@@ -13,9 +13,9 @@
     "build-rimraf": "rimraf dist && tsc"
   },
   "pre-commit": [
-		"ts.check",
-		"build-rimraf"
-	],
+    "ts.check",
+    "build-rimraf"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",

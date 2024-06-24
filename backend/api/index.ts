@@ -22,6 +22,9 @@ const PORT = parseInt(process.env.PORT as string, 10) || 3000;
 
 const app = express();
 
+// CORS設定
+app.use(cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
