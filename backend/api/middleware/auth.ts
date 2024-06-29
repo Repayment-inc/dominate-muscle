@@ -19,6 +19,8 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
       }
       req.user = user as JwtPayload; // JWTのペイロードをreq.userに格納
       console.log("Authenticated user:", req.user); // ログに出力
+      console.log("【ユーザーID】req.user?.id =", req.user?.id); // ログに出力
+
       next();
     });
   } else {

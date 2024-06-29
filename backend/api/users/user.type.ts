@@ -1,21 +1,17 @@
-export interface User {
+export type User = {
   username: string;
   email: string;
   password: string;
-}
+};
 
-export interface UnitUser extends User {
+export type UnitUser = User & {
   id: number;
-}
+};
 
-export interface Users {
-  [key: string]: UnitUser;
-}
-
-export interface JwtToken {
+export type JwtToken = {
   token: string;
   type: string;
-}
+};
 
 export type TokenData = {
   accessToken: string;

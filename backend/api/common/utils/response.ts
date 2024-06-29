@@ -6,28 +6,40 @@ type ApiResponse<T> = {
   error?: string;
 };
 
+// Result codesをEnumで定義
+enum ResultCode {
+  Success = 0,
+  ApplicationError = 90,
+  SystemError = 99,
+}
+
 const createSuccessResponse = <T>(
   message: string,
   data: T
 ): ApiResponse<T> => ({
-  resultCode: 0,
+  resultCode: ResultCode.Success,
   message,
   resultData: data,
 });
 
 const ApplicationError = (
-  message: string,
-  error: string
-): ApiResponse<null> => ({
-  resultCode: 90,
-  message,
-  error,
+  // message: string,
+  errorMessage: string
+): ApiResponse<void> => ({
+  resultCode: ResultCode.ApplicationError,
+  message: "業務エラー",
+  error: errorMessage,
 });
 
-const SystemError = (message: string, error: string): ApiResponse<null> => ({
-  resultCode: 99,
-  message,
-  error,
+const SystemError = (): ApiResponse<void> => ({
+  resultCode: ResultCode.SystemError,
+  message: "予期せぬエラーが発生しました",
 });
 
-export { createSuccessResponse, ApplicationError, SystemError, ApiResponse };
+export {
+  createSuccessResponse,
+  ApplicationError,
+  SystemError,
+  ApiResponse,
+  ResultCode,
+};
