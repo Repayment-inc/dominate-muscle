@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
+  CardDescription,
   // CardDescription,
   // CardFooter,
   CardHeader,
@@ -16,10 +17,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { MoreVertical } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 import { Button } from "@/components/ui/button";
 
 import { WorkoutHistoryEntry } from "@/types/workoutHistoryTypes";
+import { deleteWorkoutHistory, fetchWorkoutHistory } from "@/hooks/useAPI";
 
 const groupByMonth = (workoutHistory: WorkoutHistoryEntry[]) => {
   return workoutHistory.reduce<{ [key: string]: WorkoutHistoryEntry[] }>(
@@ -97,6 +105,19 @@ export const History: React.FC = () => {
     setSortOrder(sortOrder === "desc" ? "asc" : "desc");
   };
 
+  const submitDeleteWorkout = async (date: string) => {
+    try {
+      await deleteWorkoutHistory(date);
+      alert("削除に成功しました")
+      await fetchWorkoutHistory();
+      window.location.reload();
+    } catch (error) {
+      alert("エラーが発生しました。もう一度試してください。");
+      console.error(error);
+    }
+  }
+
+
   return (
     <>
       <div>
@@ -119,27 +140,27 @@ export const History: React.FC = () => {
                   >
                     <CardHeader>
                       <CardTitle>{entry.date}</CardTitle>
+                      <CardDescription>
+                        <div className="font-bold">{entry.sessionTitle}</div>
+                      </CardDescription>
                     </CardHeader>
+                    <CardContent>
+
                     {entry.workouts.map((workout, idx) => (
-                      <div key={idx}>
-                        <CardContent>
-                          <div className="font-bold">{workout.title}</div>
-                          {workout.exercises.map((exercise, exIndex) => (
-                            <div
-                              key={exIndex}
-                              className="flex items-center gap-2 my-1"
+                      // <div >
+                        <div
+                        key={idx}      
+                        className="flex items-center gap-2"
                             >
                               <p className="text-gray-500 text-sm">
-                                {exercise.exerciseName}
+                                {workout.exerciseName}
                               </p>
                               <p className="text-gray-500 text-sm">
-                                {exercise.sets.length}セット
+                                {workout.sets.length}セット
                               </p>
                             </div>
-                          ))}
-                        </CardContent>
-                      </div>
                     ))}
+                        </CardContent>
                   </Card>
                 </div>
               ))}
@@ -156,28 +177,55 @@ export const History: React.FC = () => {
                   <h3 className="text-center">
                     {selectedWorkout2.date} ワークアウト内容
                   </h3>
+                {/* 履歴編集ボタン */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer">
+                        <MoreVertical className="h-6 w-6" />
+                        <span className="sr-only">edit</span>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-30" align="end">
+                      <Button
+                        variant="outline"
+                      >
+                        編集
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          if (window.confirm("本当に削除しますか?")) {
+                            submitDeleteWorkout(selectedWorkout2.date);
+                          }
+                        }}
+                      >
+                        削除
+                      </Button>
+                    </PopoverContent>
+                  </Popover>
                 </DialogHeader>
                 <DialogDescription>
                   ワークアウト時間〇〇分 体重〇〇kg (開発予定)
                 </DialogDescription>
-                {selectedWorkout2.workouts.map((workout, idx) => (
-                  <div key={idx} className="grid gap-4 py-4">
+                
+                {/* {selectedWorkout2.map((session, idx) => ( */}
+                  {/* <div key={idx} className="grid gap-4 py-4"> */}
                     <div className="pl-1 font-bold text-xl bg-slate-300 rounded-lg">
-                      {workout.title}
+                      {selectedWorkout2.sessionTitle}
                     </div>
-                    {workout.exercises.map((exercise, exIndex) => (
+                    {selectedWorkout2.workouts.map((exercise, exIndex) => (
                       <div key={exIndex}>
                         <p className="font-bold">{exercise.exerciseName}</p>
                         {exercise.sets.map((set, setIndex) => (
                           <p className="text-gray-500 text-sm" key={setIndex}>
-                            {set.set_number}set目: {set.weight} kg x {set.reps}{" "}
+                            {set.setNumber}set目: {set.weight} kg x {set.reps}{" "}
                             回
                           </p>
                         ))}
                       </div>
                     ))}
-                  </div>
-                ))}
+                  {/* </div> */}
+                {/* ))} */}
                 <DialogFooter>
                   <Button onClick={toggleDialog}>閉じる</Button>
                 </DialogFooter>

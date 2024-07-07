@@ -23,12 +23,7 @@ export function calculateWeeklyTotalScore(
         (total, current) =>
           total +
           current.workouts.reduce(
-            (sum, workout) =>
-              sum +
-              workout.exercises.reduce(
-                (setSum, exercise) => setSum + exercise.sets.length,
-                0,
-              ),
+            (sum, workout) => sum + workout.sets.length,
             0,
           ),
         0,
@@ -38,12 +33,7 @@ export function calculateWeeklyTotalScore(
           total +
           current.workouts.reduce(
             (sum, workout) =>
-              sum +
-              workout.exercises.reduce(
-                (repSum, exercise) =>
-                  repSum + exercise.sets.reduce((r, set) => r + set.reps, 0),
-                0,
-              ),
+              sum + workout.sets.reduce((r, set) => r + set.reps, 0),
             0,
           ),
         0,
@@ -70,19 +60,17 @@ export const flattenWorkoutHistory = (
 ): FlattenedData[] => {
   return data.flatMap((entry) =>
     entry.workouts.flatMap((workout) =>
-      workout.exercises.flatMap((exercise) =>
-        exercise.sets.map((set) => ({
-          date: entry.date,
-          title: workout.title,
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.exerciseName,
-          partId: exercise.partId,
-          partName: exercise.partName,
-          set_number: set.set_number,
-          weight: parseFloat(set.weight),
-          reps: set.reps,
-        })),
-      ),
+      workout.sets.map((set) => ({
+        date: entry.date,
+        title: entry.sessionTitle,
+        exerciseId: workout.exerciseId,
+        exerciseName: workout.exerciseName,
+        partId: workout.partId,
+        partName: workout.partName,
+        set_number: set.setNumber,
+        weight: parseFloat(set.weight),
+        reps: set.reps,
+      })),
     ),
   );
 };

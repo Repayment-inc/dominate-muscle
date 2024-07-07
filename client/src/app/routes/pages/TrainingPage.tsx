@@ -21,6 +21,8 @@ export const TrainingPage: React.FC = () => {
     removeExercise,
     handleSetChange,
     handleSubmit,
+    sessionTitle,
+    setSessionTitle,
   } = useWorkout();
 
   const handleRowClick = (exerciseId: number, exerciseName: string) => {
@@ -50,6 +52,19 @@ export const TrainingPage: React.FC = () => {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           placeholder="日付"
+          className="w-[360px]"
+        />
+      </div>
+      <div className="flex w-full max-w-sm justify-start items-center gap-1.5">
+        <Label className="w-80 text-left" htmlFor="sessionTitleId">
+          セッションタイトルは?
+        </Label>
+        <Input
+          type="text"
+          id="sessionTitleId"
+          value={sessionTitle}
+          onChange={(e) => setSessionTitle(e.target.value)}
+          placeholder="セッションタイトル"
           className="w-[360px]"
         />
       </div>

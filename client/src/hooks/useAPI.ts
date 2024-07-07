@@ -86,3 +86,18 @@ export const addWorkout = async (formData: {
     console.error("Error:", error);
   }
 };
+
+export const deleteWorkoutHistory = async (date: string) => {
+  try {
+    const response = await apiClient.post("/workouts/delete", { date });
+
+    if (response.status !== 200) {
+      const errorData = await response.data;
+      throw new Error(errorData.message || "Workout history deletion failed");
+    }
+
+    console.log("Workout history deleted successfully:", response.data);
+  } catch (error) {
+    console.error("Error deleting workout history:", error);
+  }
+};
