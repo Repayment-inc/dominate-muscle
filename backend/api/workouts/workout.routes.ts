@@ -18,14 +18,47 @@ workoutsRouter.post(
   authMiddleware, // 認証ミドルウェアを適用
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { date, workout } = req.body;
+      const { date, sessionTitle, workout } = req.body;
 
       // ワークアウトをDBに追加
-      await logic.addWorkout(date, workout, req.user?.id);
+      await logic.addWorkout(date, sessionTitle, workout, req.user?.id);
 
       // 返却用データ生成
       const responseData = createSuccessResponse(
         "ワークアウトの登録に成功しました。",
+        {}
+      );
+
+      return res.status(StatusCodes.CREATED).json(responseData);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        next(errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+      } else {
+        next(
+          errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "原因不明のエラー")
+        );
+      }
+    }
+  }
+);
+
+// workoutの登録
+workoutsRouter.post(
+  "/delete",
+  authMiddleware, // 認証ミドルウェアを適用
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { date } = req.body;
+
+      // バリデーションチェック
+      if (!date) return next(errorHandler(400, "日付を入力してください"));
+
+      // ワークアウトをDBに追加
+      await logic.deleteWorkout(date, req.user?.id);
+
+      // 返却用データ生成
+      const responseData = createSuccessResponse(
+        "ワークアウトの削除に成功しました。",
         {}
       );
 

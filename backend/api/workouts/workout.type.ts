@@ -5,20 +5,31 @@ type SetHistory = {
   reps: number;
 };
 
-type ExerciseHistory = {
+// type ExerciseHistory = {
+//   exerciseId: number;
+//   exerciseName: string;
+//   partId: number;
+//   partName: string;
+//   exerciseOrder: number;
+//   sets: SetHistory[];
+// };
+
+// type Workout = {
+//   exercises: ExerciseHistory[];
+// };
+
+type Workout = {
   exerciseId: number;
   exerciseName: string;
   partId: number;
   partName: string;
+  exerciseOrder: number;
   sets: SetHistory[];
 };
 
-type Workout = {
-  title: string;
-  exercises: ExerciseHistory[];
-};
-
 type WorkoutHistory = {
+  sessionId: number;
+  sessionTitle: string;
   date: string;
   workouts: Workout[];
 };
