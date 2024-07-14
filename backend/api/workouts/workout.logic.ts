@@ -1,4 +1,9 @@
-import { HistoryData, Exercise } from "./workout.type";
+import {
+  HistoryData,
+  Exercise,
+  AddWorkoutRequestBody,
+  EditWorkoutRequestBody,
+} from "./workout.type";
 import { pool } from "../db/database";
 import { formatDate } from "../common/utils/utils";
 
@@ -19,6 +24,7 @@ export const getWorkoutHistory = async (
         ex.id as exercise_id,
         ex.name as exercise_name,
         wsets.exercise_order,
+        wsets.id as set_id,
         wsets.set_number,
         wsets.weight,
         wsets.reps
@@ -94,6 +100,7 @@ export const getWorkoutHistory = async (
 
     // エクササイズにセットを追加
     exercise.sets.push({
+      setId: row.set_id,
       setNumber: row.set_number,
       weight: row.weight,
       reps: row.reps,
@@ -104,12 +111,12 @@ export const getWorkoutHistory = async (
 };
 
 // ワークアウト情報登録
-export const addWorkout = async (
-  date: string,
-  sessionTitle: string,
-  workout: Exercise[],
-  userId: number
-): Promise<void> => {
+export const addWorkout = async ({
+  date,
+  sessionTitle,
+  workout,
+  userId,
+}: AddWorkoutRequestBody): Promise<void> => {
   const client = await pool.connect();
   try {
     // トランザクションを開始
@@ -185,6 +192,144 @@ export const deleteWorkout = async (
     await client.query("ROLLBACK");
     console.error("ワークアウトの追加に失敗しました:", error);
     throw new Error("ワークアウトの追加に失敗しました");
+  } finally {
+    client.release();
+  }
+};
+
+// ワークアウト情報編集
+export const updateWorkout = async ({
+  sessionId,
+  date,
+  sessionTitle,
+  workouts,
+}: // userId,
+EditWorkoutRequestBody): Promise<void> => {
+  const client = await pool.connect();
+  try {
+    // トランザクションを開始
+    await client.query("BEGIN");
+
+    // ワークアウトセッションテーブルの更新
+    if (sessionTitle || date) {
+      const updateFields: string[] = [];
+      const updateValues: (string | number)[] = [];
+      let query = "UPDATE workout_sessions SET ";
+
+      if (date) {
+        updateFields.push("date = $1");
+        updateValues.push(date);
+      }
+
+      if (sessionTitle) {
+        updateFields.push("session_title = $" + (updateValues.length + 1));
+        updateValues.push(sessionTitle);
+      }
+
+      query +=
+        updateFields.join(", ") + " WHERE id = $" + (updateValues.length + 1);
+      updateValues.push(sessionId);
+
+      await client.query(query, updateValues);
+    }
+
+    // 現在のセットを取得し、マップに保存する
+    const existingSetsResult = await client.query(
+      "SELECT id, exercise_id FROM workout_sets WHERE session_id = $1 ORDER BY exercise_order ASC",
+      [sessionId]
+    );
+    const existingSetsMap = new Map<number, { exerciseId: number }>();
+    for (const row of existingSetsResult.rows) {
+      existingSetsMap.set(row.id, { exerciseId: row.exercise_id });
+    }
+
+    // セットを処理する
+    let exerciseOrder = 1;
+    for (const exercise of workouts) {
+      let setNumber = 1;
+      for (const set of exercise.sets) {
+        if (set.status === "new") {
+          // 新規追加の場合
+          await client.query(
+            "INSERT INTO workout_sets (session_id, exercise_id, exercise_order, set_number, weight, reps) VALUES ($1, $2, $3, $4, $5, $6)",
+            [
+              sessionId,
+              exercise.exerciseId,
+              exerciseOrder,
+              setNumber,
+              set.weight,
+              set.reps,
+            ]
+          );
+        } else if (set.status === "updated") {
+          // 更新の場合
+          await client.query(
+            "UPDATE workout_sets SET exercise_id = $1, set_number = $2, weight = $3, reps = $4, exercise_order = $5 WHERE id = $6 AND session_id = $7",
+            [
+              exercise.exerciseId,
+              setNumber,
+              set.weight,
+              set.reps,
+              exerciseOrder,
+              set.setId,
+              sessionId,
+            ]
+          );
+        } else if (set.status === "unchanged") {
+          // 未変更の場合、順序を更新
+          await client.query(
+            "UPDATE workout_sets SET exercise_order = $1, set_number = $2 WHERE id = $3 AND session_id = $4",
+            [exerciseOrder, setNumber, set.setId, sessionId]
+          );
+        }
+        setNumber++;
+        exerciseOrder++;
+      }
+    }
+
+    // 削除されたセットを処理する
+    for (const [id] of existingSetsMap.entries()) {
+      if (
+        !workouts.some((exercise) =>
+          exercise.sets.some(
+            (set) => set.setId === id && set.status !== "deleted"
+          )
+        )
+      ) {
+        await client.query(
+          "DELETE FROM workout_sets WHERE id = $1 AND session_id = $2",
+          [id, sessionId]
+        );
+      }
+    }
+
+    // 再計算後、連番を再設定
+    exerciseOrder = 1;
+    for (const exercise of workouts) {
+      let setNumber = 1;
+      const result = await client.query(
+        "SELECT id FROM workout_sets WHERE session_id = $1 AND exercise_id = $2 ORDER BY exercise_order ASC",
+        [sessionId, exercise.exerciseId]
+      );
+
+      for (const row of result.rows) {
+        await client.query(
+          "UPDATE workout_sets SET exercise_order = $1, set_number = $2 WHERE id = $3",
+          [exerciseOrder, setNumber, row.id]
+        );
+        setNumber++;
+        exerciseOrder++;
+      }
+    }
+
+    await client.query("COMMIT");
+
+    return;
+  } catch (error) {
+    // エラーが発生した場合、トランザクションをロールバック
+    await client.query("ROLLBACK");
+    console.error("ワークアウトの編集に失敗しました:", error);
+    throw new Error("ワークアウトの編集に失敗しました");
   } finally {
     client.release();
   }

@@ -1,5 +1,6 @@
 // history用
 type SetHistory = {
+  setId: number;
   setNumber: number;
   weight: number;
   reps: number;
@@ -39,14 +40,31 @@ export type HistoryData = {
 };
 
 // add-remove用
-type Set = {
+export type Set = {
+  setId?: number;
   setNumber: number;
   weight: number;
   reps: number;
+  status?: string;
 };
 
 export type Exercise = {
   exerciseId: number;
-  exerciseName: string;
+  // exerciseName: string;
   sets: Set[];
+};
+
+export type AddWorkoutRequestBody = {
+  date: string;
+  sessionTitle: string;
+  workout: Exercise[];
+  userId: number;
+};
+
+export type EditWorkoutRequestBody = {
+  sessionId: number;
+  date: string;
+  sessionTitle: string;
+  workouts: Exercise[];
+  // userId: number;
 };
