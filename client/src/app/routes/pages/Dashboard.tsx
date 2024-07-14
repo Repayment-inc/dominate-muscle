@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { WorkoutHistoryEntry } from "@/types/workoutHistoryTypes";
 // import { BarChart, Database } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useExercises } from "@/hooks/useExercises";
 import { useWorkout } from "@/hooks/useWorkout";
 
@@ -57,11 +58,7 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const { exercises } = useExercises();
-  const {
-    isDialogOpen,
-    setDialogOpen,
-
-  } = useWorkout();
+  const { isDialogOpen, setDialogOpen } = useWorkout();
 
   const [selectedExerciseId, setSelectedExerciseId] = useState<number>(0);
 
@@ -87,18 +84,27 @@ export const Dashboard: React.FC = () => {
   // ----------------------------------------
 
   // -------------------部位別TOP5---------------------
-  const partCountData = flatData.reduce((acc: Record<number, { partId: number; partName: string; partCounts: number }>, item) => {
-    const key = item.partId;
-    if (!acc[key]) {
-      acc[key] = {
-        partId: item.partId,
-        partName: item.partName,
-        partCounts: 0,
-      };
-    }
-    acc[key].partCounts += 1;
-    return acc;
-  }, {});
+  const partCountData = flatData.reduce(
+    (
+      acc: Record<
+        number,
+        { partId: number; partName: string; partCounts: number }
+      >,
+      item,
+    ) => {
+      const key = item.partId;
+      if (!acc[key]) {
+        acc[key] = {
+          partId: item.partId,
+          partName: item.partName,
+          partCounts: 0,
+        };
+      }
+      acc[key].partCounts += 1;
+      return acc;
+    },
+    {},
+  );
 
   // オブジェクトを配列に変換
   const partCountArray = Object.values(partCountData);
@@ -111,24 +117,30 @@ export const Dashboard: React.FC = () => {
 
   // -------------------エクササイズ別別TOP5---------------------
   // 各エクササイズのカウントを集計
-  const exerciseCountData = flatData.reduce((acc: Record<number, ExerciseCount>, item) => {
-    const key = item.exerciseId;
-    if (!acc[key]) {
-      acc[key] = {
-        exerciseId: item.exerciseId,
-        exerciseName: item.exerciseName,
-        exerciseCounts: 0,
-      };
-    }
-    acc[key].exerciseCounts += 1;
-    return acc;
-  }, {});
+  const exerciseCountData = flatData.reduce(
+    (acc: Record<number, ExerciseCount>, item) => {
+      const key = item.exerciseId;
+      if (!acc[key]) {
+        acc[key] = {
+          exerciseId: item.exerciseId,
+          exerciseName: item.exerciseName,
+          exerciseCounts: 0,
+        };
+      }
+      acc[key].exerciseCounts += 1;
+      return acc;
+    },
+    {},
+  );
 
   // オブジェクトを配列に変換
   const exerciseCountArray: ExerciseCount[] = Object.values(exerciseCountData);
   // exerciseCountsが多い順にソートし、トップ5だけを保持
   const topFiveExercises = exerciseCountArray
-    .sort((a: ExerciseCount, b: ExerciseCount) => b.exerciseCounts - a.exerciseCounts)
+    .sort(
+      (a: ExerciseCount, b: ExerciseCount) =>
+        b.exerciseCounts - a.exerciseCounts,
+    )
     .slice(0, 5);
   console.log(topFiveExercises);
   // ----------------------------------------
@@ -161,7 +173,6 @@ export const Dashboard: React.FC = () => {
         </BarChart>
       </ResponsiveContainer>
 
-
       <h1 className="text-2xl font-semibold leading-none tracking-tight my-4">
         月間、週間、エクササイズ別
       </h1>
@@ -188,6 +199,7 @@ export const Dashboard: React.FC = () => {
           <h2 className="">特定のエクササイズ</h2>
           <div className="flex justify-start gap-10 my-3 ml-3">
             {/* <Button onClick={addExercise}>次の種目へ</Button> */}
+            <Button onClick={() => setDialogOpen(true)}>エクササイズを選択</Button>
             <ExerciseDialog
               isOpen={isDialogOpen}
               onOpenChange={setDialogOpen}

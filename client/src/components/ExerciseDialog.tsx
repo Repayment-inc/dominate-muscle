@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
-  DialogTrigger,
+  // DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -63,9 +63,9 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         <Button>エクササイズを選択</Button>
-      </DialogTrigger>
+      </DialogTrigger> */}
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">エクササイズ選択</DialogTitle>

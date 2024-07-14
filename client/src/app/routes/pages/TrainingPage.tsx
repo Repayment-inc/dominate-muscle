@@ -79,7 +79,7 @@ export const TrainingPage: React.FC = () => {
               <Label className="w-80 text-left">種目は?</Label>
 
               <div className="flex flex-col w-[1000px]">
-                <div>{`${selectedExercises[exerciseIndex].exerciseName}だよ`}</div>
+                <div>{`${selectedExercises[exerciseIndex].exerciseName}`}</div>
 
                 <div>
                   {selectedExercises[exerciseIndex].sets.map(
@@ -133,6 +133,9 @@ export const TrainingPage: React.FC = () => {
       </div>
 
       <div className="flex justify-center gap-10">
+
+      <Button onClick={() => setDialogOpen(true)}>エクササイズを選択</Button>
+
         <ExerciseDialog
           isOpen={isDialogOpen}
           onOpenChange={setDialogOpen}

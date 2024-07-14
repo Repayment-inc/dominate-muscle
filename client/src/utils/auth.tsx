@@ -74,18 +74,17 @@ import { NavigateFunction } from "react-router-dom";
 // export const { useUser, useLogin, useLogout, useRegister, AuthLoader } =
 //   configureAuth(authConfig);
 
-
 export const logOut = (navigate: NavigateFunction) => {
-    // const navigate = useNavigate();
-    try{
-        console.log("logout")
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("refreshToken")
-        navigate("/app")
-    } catch (error){
-        console.error(error)
-    }
-} 
+  // const navigate = useNavigate();
+  try {
+    console.log("logout");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    navigate("/app");
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 // export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 //   const user = useUser();

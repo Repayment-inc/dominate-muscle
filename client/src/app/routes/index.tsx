@@ -26,9 +26,9 @@ export const createRouter = createBrowserRouter([
       // const { LandingRoute } = await import("./landing");
       // return { Component: LandingRoute };
       const redirectTo = "/app";
-    
+
       return {
-        Component: () => <Navigate to={redirectTo} replace />
+        Component: () => <Navigate to={redirectTo} replace />,
       };
     },
   },

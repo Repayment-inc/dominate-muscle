@@ -101,3 +101,29 @@ export const deleteWorkoutHistory = async (date: string) => {
     console.error("Error deleting workout history:", error);
   }
 };
+
+export const updateWorkoutHistory = async (workoutData: {
+  sessionId: number;
+  date: string;
+  sessionTitle: string;
+  workouts: Array<{
+    exerciseId: number;
+    sets: Array<{
+      setId: number;
+      setNumber: number;
+      weight: number;
+      reps: number;
+      status: "updated" | "unchanged" | "deleted" | "new";
+    }>;
+  }>;
+}) => {
+  try {
+    console.log("workoutData:", workoutData);
+    const response = await apiClient.post("/workouts/edit", workoutData);
+
+    console.log("Success:", response.data);
+  } catch (error) {
+    console.error("Error updating workout history:", error);
+    throw error;
+  }
+};
