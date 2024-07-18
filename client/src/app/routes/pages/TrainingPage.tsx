@@ -21,6 +21,8 @@ export const TrainingPage: React.FC = () => {
     removeExercise,
     handleSetChange,
     handleSubmit,
+    sessionTitle,
+    setSessionTitle,
   } = useWorkout();
 
   const handleRowClick = (exerciseId: number, exerciseName: string) => {
@@ -53,6 +55,19 @@ export const TrainingPage: React.FC = () => {
           className="w-[360px]"
         />
       </div>
+      <div className="flex w-full max-w-sm justify-start items-center gap-1.5">
+        <Label className="w-80 text-left" htmlFor="sessionTitleId">
+          セッションタイトルは?
+        </Label>
+        <Input
+          type="text"
+          id="sessionTitleId"
+          value={sessionTitle}
+          onChange={(e) => setSessionTitle(e.target.value)}
+          placeholder="セッションタイトル"
+          className="w-[360px]"
+        />
+      </div>
 
       <div>
         {[...Array(exerciseCount)].map((_, exerciseIndex) => (
@@ -64,7 +79,7 @@ export const TrainingPage: React.FC = () => {
               <Label className="w-80 text-left">種目は?</Label>
 
               <div className="flex flex-col w-[1000px]">
-                <div>{`${selectedExercises[exerciseIndex].exerciseName}だよ`}</div>
+                <div>{`${selectedExercises[exerciseIndex].exerciseName}`}</div>
 
                 <div>
                   {selectedExercises[exerciseIndex].sets.map(
@@ -118,6 +133,9 @@ export const TrainingPage: React.FC = () => {
       </div>
 
       <div className="flex justify-center gap-10">
+
+      <Button onClick={() => setDialogOpen(true)}>エクササイズを選択</Button>
+
         <ExerciseDialog
           isOpen={isDialogOpen}
           onOpenChange={setDialogOpen}

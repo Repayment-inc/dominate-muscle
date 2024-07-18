@@ -1,7 +1,14 @@
 // src/components/MonthlyChart.tsx
 
 import React, { useState } from "react";
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer, PieProps } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Sector,
+  Cell,
+  ResponsiveContainer,
+  PieProps,
+} from "recharts";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#800080"];
 
@@ -9,7 +16,7 @@ type ExerciseData = {
   exerciseId: number;
   exerciseName: string;
   exerciseCounts: number;
-}
+};
 
 interface PieSectorDataItem {
   cx: number;
@@ -28,7 +35,7 @@ interface PieSectorDataItem {
 const ExerciseChart: React.FC<{ data: ExerciseData[] }> = ({ data }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const onPieEnter: PieProps['onMouseEnter'] = (_, index) => {
+  const onPieEnter: PieProps["onMouseEnter"] = (_, index) => {
     setActiveIndex(index);
   };
 
@@ -121,7 +128,7 @@ const ExerciseChart: React.FC<{ data: ExerciseData[] }> = ({ data }) => {
           dataKey="exerciseCounts"
           onMouseEnter={onPieEnter}
         >
-          {data.map((entry, index) => (
+          {data.map((_, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>

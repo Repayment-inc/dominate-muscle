@@ -15,6 +15,7 @@ type SelectedExercise = {
 
 export const useWorkout = () => {
   const [date, setDate] = useState(""); // 日付の状態を追加
+  const [sessionTitle, setSessionTitle] = useState(""); // 追加
   const [exerciseCount, setExerciseCount] = useState(0);
   const [selectedExercises, setSelectedExercises] = useState<
     SelectedExercise[]
@@ -84,6 +85,11 @@ export const useWorkout = () => {
       return;
     }
 
+    if (!sessionTitle) {
+      alert("セッションタイトルを入力してください。");
+      return;
+    }
+
     for (const exercise of selectedExercises) {
       if (!exercise.exerciseId) {
         alert("すべての種目を選択してください。");
@@ -102,15 +108,18 @@ export const useWorkout = () => {
 
     const formData = {
       date,
+      sessionTitle,
       workout: workoutData,
     };
 
     try {
       await addWorkout(formData);
       setDate("");
+      setSessionTitle("");
       setExerciseCount(0);
       setSelectedExercises([]); // 選択されたエクササイズを初期化
       await fetchWorkoutHistory();
+      console.log(formData);
       alert("ワークアウトを追加しました。お疲れ様でした!!");
     } catch (error) {
       alert("エラーが発生しました。もう一度試してください。");
@@ -121,6 +130,8 @@ export const useWorkout = () => {
   return {
     date,
     setDate,
+    sessionTitle,
+    setSessionTitle,
     exerciseCount,
     selectedExercises,
     isDialogOpen,

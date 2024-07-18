@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useMemo } from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { ExerciseDialog } from "@/components/ExerciseDialog";
+import { useExercises } from "@/hooks/useExercises";
+import { useWorkoutEdit } from '@/hooks/useWorkoutEdit';
+import { useWorkoutHistory } from "@/hooks/useWorkoutHistory";
 import {
   Card,
   CardContent,
+  CardDescription,
   // CardDescription,
   // CardFooter,
   CardHeader,
@@ -15,87 +23,79 @@ import {
   DialogHeader,
   DialogDescription,
   DialogFooter,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { MoreVertical } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import { Button } from "@/components/ui/button";
 
 import { WorkoutHistoryEntry } from "@/types/workoutHistoryTypes";
+// import { WorkoutEdit } from "@/types/workoutEditTypes";
+import {
+  deleteWorkoutHistory,
+  fetchWorkoutHistory,
+  // updateWorkoutHistory,
+} from "@/hooks/useAPI";
 
-const groupByMonth = (workoutHistory: WorkoutHistoryEntry[]) => {
-  return workoutHistory.reduce<{ [key: string]: WorkoutHistoryEntry[] }>(
-    (acc, workout) => {
-      const month = workout.date.slice(0, 7); // YYYY-MM形式
-      if (!acc[month]) {
-        acc[month] = [];
-      }
-      acc[month].push(workout);
-      return acc;
-    },
-    {},
-  );
-};
 
-const sortWorkouts = (
-  workouts: WorkoutHistoryEntry[],
-  order: "asc" | "desc",
-) => {
-  return workouts.slice().sort((a, b) => {
-    if (order === "desc") {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    }
-    return new Date(a.date).getTime() - new Date(b.date).getTime();
-  });
-};
 
 export const History: React.FC = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
-  // const [selectedWorkout, setSelectedWorkout] = useState(null);
-  const [selectedWorkout2, setSelectedWorkout2] =
+  const [selectedWorkout, setselectedWorkout] =
     useState<WorkoutHistoryEntry | null>(null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  // const groupedWorkouts = groupByMonth(
-  //   sortWorkouts(workoutHistoryData.workoutHistory, sortOrder),
-  // );
 
-  // 履歴データの取得
-  const [workoutHistory, setWorkoutHistory] = useState<WorkoutHistoryEntry[]>(
-    [],
-  );
-  useEffect(() => {
-    // ローカルストレージからキャッシュされたデータを取得
-    const cachedData = localStorage.getItem("workoutHistory");
-    if (cachedData) {
-      // 取得したデータをオブジェクト形式でースし、workoutHistoryに設定
-      const parsedData = JSON.parse(cachedData).workoutHistory;
-      setWorkoutHistory(parsedData);
-      // console.log(parsedData)
-    }
-  }, []);
-
-  const groupedWorkouts = groupByMonth(sortWorkouts(workoutHistory, sortOrder));
-
-  console.log(groupedWorkouts);
-
-  // ------------
+  const { workoutHistory, sortOrder, toggleSortOrder, groupedWorkouts } = useWorkoutHistory();
 
   const toggleDialog = () => {
     setDialogOpen(!isDialogOpen);
   };
 
-  // ダイアログを開き、ワークアウトの内容を渡す
-  // const handleCardClick = (workout) => {
-  //   setSelectedWorkout(workout);
-  //   toggleDialog();
-  // };
-
-  const handleCardClick2 = (workout: WorkoutHistoryEntry) => {
-    setSelectedWorkout2(workout);
+  const handleCardClick = (workout: WorkoutHistoryEntry) => {
+    setselectedWorkout(workout);
     toggleDialog();
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+  const submitDeleteWorkout = async (date: string) => {
+    try {
+      await deleteWorkoutHistory(date);
+      alert("削除に成功しました");
+      await fetchWorkoutHistory();
+      window.location.reload();
+    } catch (error) {
+      alert("エラーが発生しました。もう一度試してください。");
+      console.error(error);
+    }
   };
+
+  const {
+    isEditDialogOpen,
+    editWorkout,
+    selectedDate,
+    isExerciseDialogOpen,
+    toggleEditDialog,
+    handleEditClick,
+    handleDateChange,
+    handleSaveEdit,
+    handleSetChange,
+    handleDeleteSet,
+    handleAddSet,
+    handleExerciseSelect,
+    setEditWorkout,
+    setIsExerciseDialogOpen,
+    setCurrentEditingExerciseIndex,
+  } = useWorkoutEdit();
+
+
+  const { exercises, loading, error } = useExercises();
+
+
+  if (loading) return <p>Loading exercises...</p>;
+  if (error) return <p>Error loading exercises: {error}</p>;
 
   return (
     <>
@@ -114,39 +114,35 @@ export const History: React.FC = () => {
               {groupedWorkouts[month].map((entry, index) => (
                 <div key={index} className="flex justify-center p-1">
                   <Card
-                    onClick={() => handleCardClick2(entry)}
+                    onClick={() => handleCardClick(entry)}
                     className="w-[350px] cursor-pointer"
                   >
                     <CardHeader>
                       <CardTitle>{entry.date}</CardTitle>
+                      <CardDescription>
+                        <div className="font-bold">{entry.sessionTitle}</div>
+                      </CardDescription>
                     </CardHeader>
-                    {entry.workouts.map((workout, idx) => (
-                      <div key={idx}>
-                        <CardContent>
-                          <div className="font-bold">{workout.title}</div>
-                          {workout.exercises.map((exercise, exIndex) => (
-                            <div
-                              key={exIndex}
-                              className="flex items-center gap-2 my-1"
-                            >
-                              <p className="text-gray-500 text-sm">
-                                {exercise.exerciseName}
-                              </p>
-                              <p className="text-gray-500 text-sm">
-                                {exercise.sets.length}セット
-                              </p>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </div>
-                    ))}
+                    <CardContent>
+                      {entry.workouts.map((workout, idx) => (
+                        // <div >
+                        <div key={idx} className="flex items-center gap-2">
+                          <p className="text-gray-500 text-sm">
+                            {workout.exerciseName}
+                          </p>
+                          <p className="text-gray-500 text-sm">
+                            {workout.sets.length}セット
+                          </p>
+                        </div>
+                      ))}
+                    </CardContent>
                   </Card>
                 </div>
               ))}
             </div>
           ))}
 
-          {selectedWorkout2 && (
+          {selectedWorkout && (
             <Dialog open={isDialogOpen} onOpenChange={toggleDialog}>
               <DialogTrigger asChild>
                 <span className="sr-only">Workout Dialog</span>
@@ -154,36 +150,241 @@ export const History: React.FC = () => {
               <DialogContent>
                 <DialogHeader>
                   <h3 className="text-center">
-                    {selectedWorkout2.date} ワークアウト内容
+                    {selectedWorkout.date} ワークアウト内容
                   </h3>
+                  {/* 履歴編集ボタン */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer">
+                        <MoreVertical className="h-6 w-6" />
+                        <span className="sr-only">edit</span>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-30" align="end">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleEditClick(selectedWorkout)}
+                      >
+                        編集
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          if (window.confirm("本当に削除しますか?")) {
+                            submitDeleteWorkout(selectedWorkout.date);
+                          }
+                        }}
+                      >
+                        削除
+                      </Button>
+                    </PopoverContent>
+                  </Popover>
                 </DialogHeader>
                 <DialogDescription>
                   ワークアウト時間〇〇分 体重〇〇kg (開発予定)
                 </DialogDescription>
-                {selectedWorkout2.workouts.map((workout, idx) => (
-                  <div key={idx} className="grid gap-4 py-4">
-                    <div className="pl-1 font-bold text-xl bg-slate-300 rounded-lg">
-                      {workout.title}
-                    </div>
-                    {workout.exercises.map((exercise, exIndex) => (
-                      <div key={exIndex}>
-                        <p className="font-bold">{exercise.exerciseName}</p>
-                        {exercise.sets.map((set, setIndex) => (
-                          <p className="text-gray-500 text-sm" key={setIndex}>
-                            {set.set_number}set目: {set.weight} kg x {set.reps}{" "}
-                            回
-                          </p>
-                        ))}
-                      </div>
+
+                {/* {selectedWorkout.map((session, idx) => ( */}
+                {/* <div key={idx} className="grid gap-4 py-4"> */}
+                <div className="pl-1 font-bold text-xl bg-slate-300 rounded-lg">
+                  {selectedWorkout.sessionTitle}
+                </div>
+                {selectedWorkout.workouts.map((exercise, exIndex) => (
+                  <div key={exIndex}>
+                    <p className="font-bold">{exercise.exerciseName}</p>
+                    {exercise.sets.map((set, setIndex) => (
+                      <p className="text-gray-500 text-sm" key={setIndex}>
+                        {set.setNumber}set目: {set.weight} kg x {set.reps} 回
+                      </p>
                     ))}
                   </div>
                 ))}
+                {/* </div> */}
+                {/* ))} */}
                 <DialogFooter>
                   <Button onClick={toggleDialog}>閉じる</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           )}
+
+          {editWorkout && (
+            <Dialog open={isEditDialogOpen} onOpenChange={toggleEditDialog}>
+              <DialogContent className="overflow-y-scroll max-h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle className="text-center">
+                    ワークアウト編集
+                  </DialogTitle>
+                </DialogHeader>
+                <DialogDescription>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSaveEdit(editWorkout);
+                    }}
+                  >
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        日付
+                      </label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-32 justify-start text-left font-normal pl-0 focus:ring-2 focus:ring-blue-300 focus:outline-none",
+                              !selectedDate && "text-muted-foreground",
+                            )}
+                          >
+                            {selectedDate ? (
+                              <div className="flex items-center gap-2">
+                                <span>
+                                  {format(selectedDate, "yyyy-MM-dd")}
+                                </span>
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </div>
+                            ) : (
+                              <span>日付を選択</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={handleDateChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        セッションタイトル
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        value={editWorkout.sessionTitle || ""}
+                        onChange={(e) =>
+                          setEditWorkout({
+                            ...editWorkout,
+                            sessionTitle: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </div>
+                    {editWorkout.workouts?.map((exercise, exIndex) => (
+                      <div key={exIndex} className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          エクササイズ名
+                        </label>
+                        <div className="flex items-center mt-1">
+                          <input
+                            type="text"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            value={exercise.exerciseName}
+                            readOnly
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              setCurrentEditingExerciseIndex(exIndex);
+                              setIsExerciseDialogOpen(true);
+                            }}
+                            className="ml-2"
+                          >
+                            選択
+                          </Button>
+                        </div>
+                        {exercise.sets.map((set, setIndex) => (
+                          <div
+                            key={setIndex}
+                            className={`flex items-center space-x-2 mt-2 ${set.status === "deleted" ? "opacity-50" : ""}`}
+                          >
+                            <span className="text-sm">
+                              セット {set.setNumber}
+                            </span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                              value={set.weight}
+                              onChange={(e) =>
+                                handleSetChange(
+                                  exIndex,
+                                  setIndex,
+                                  "weight",
+                                  e.target.value,
+                                )
+                              }
+                              disabled={set.status === "deleted"}
+                              required
+                            />
+                            <span className="text-sm">kg</span>
+                            <input
+                              type="number"
+                              className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                              value={set.reps}
+                              onChange={(e) =>
+                                handleSetChange(
+                                  exIndex,
+                                  setIndex,
+                                  "reps",
+                                  e.target.value,
+                                )
+                              }
+                              disabled={set.status === "deleted"}
+                              required
+                            />
+                            <span className="text-sm">回</span>
+                            <Button
+                              type="button"
+                              variant={
+                                set.status === "deleted"
+                                  ? "secondary"
+                                  : "destructive"
+                              }
+                              onClick={() => handleDeleteSet(exIndex, setIndex)}
+                            >
+                              {set.status === "deleted" ? "復元" : "削除"}
+                            </Button>
+                            <span className="text-xs text-gray-500">
+                              ({set.status})
+                            </span>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          className="mt-2"
+                          onClick={() => handleAddSet(exIndex)}
+                        >
+                          セット追加
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex justify-end space-x-2 mt-4">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={toggleEditDialog}
+                      >
+                        キャンセル
+                      </Button>
+                      <Button type="submit">保存</Button>
+                    </div>
+                  </form>
+                </DialogDescription>
+              </DialogContent>
+            </Dialog>
+          )}
+          <ExerciseDialog
+            isOpen={isExerciseDialogOpen}
+            onOpenChange={setIsExerciseDialogOpen}
+            exercises={exercises}
+            onExerciseSelect={handleExerciseSelect}
+          />
         </div>
       </div>
     </>

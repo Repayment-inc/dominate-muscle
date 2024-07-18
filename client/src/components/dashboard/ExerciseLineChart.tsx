@@ -36,7 +36,12 @@ const ExerciseChart: React.FC<{ data: ExerciseData[] }> = ({ data }) => {
         <YAxis dataKey="weight" domain={[20, "auto"]} />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="weight" stroke="#ff7300" activeDot={{ r: 8 }} />
+        <Line
+          type="monotone"
+          dataKey="weight"
+          stroke="#ff7300"
+          activeDot={{ r: 8 }}
+        />
         {/* <Line
           type="monotone"
           dataKey="reps"

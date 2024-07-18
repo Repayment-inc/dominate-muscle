@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
-  DialogTrigger,
+  // DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -63,12 +63,12 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         <Button>エクササイズを選択</Button>
-      </DialogTrigger>
+      </DialogTrigger> */}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>エクササイズ選択</DialogTitle>
+          <DialogTitle className="text-center">エクササイズ選択</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           下記からエクササイズを選択してください。
@@ -118,9 +118,9 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
                           exercise.exerciseName,
                         )
                       }
-                      className="cursor-pointer"
+                      className="cursor-pointer w-max"
                     >
-                      <TableCell className="font-medium text-center py-0">
+                      <TableCell className="font-medium text-center py-0 w-20">
                         <div className="h-10 rounded-full bg-sky-100 flex items-center justify-center">
                           {exercise.bodyPartName}
                         </div>

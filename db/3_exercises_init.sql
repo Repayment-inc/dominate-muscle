@@ -1,5 +1,5 @@
 -- 既存の種目テーブルがある場合に削除
-DROP TABLE IF EXISTS exercises;
+-- DROP TABLE IF EXISTS exercises;
 
 -- 種目テーブルの作成
 CREATE TABLE IF NOT EXISTS exercises (

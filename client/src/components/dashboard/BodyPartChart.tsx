@@ -7,7 +7,7 @@ type ExerciseData = {
   partId: number;
   partName: string;
   partCounts: number;
-}
+};
 
 const COLORS = [
   "#0088FE",
@@ -74,7 +74,7 @@ const BodyPartChart: React.FC<{ data: ExerciseData[] }> = ({ data }) => {
           fill="#8884d8"
           dataKey="partCounts"
         >
-          {data.map((entry, index) => (
+          {data.map((_, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>

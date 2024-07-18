@@ -1,5 +1,5 @@
 -- 既存の部位テーブルがある場合に削除
-DROP TABLE IF EXISTS body_parts;
+-- DROP TABLE IF EXISTS body_parts;
 
 -- 部位テーブルの作成
 CREATE TABLE IF NOT EXISTS body_parts (

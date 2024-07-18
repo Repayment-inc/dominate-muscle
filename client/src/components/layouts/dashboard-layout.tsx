@@ -12,6 +12,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 // import { useLogout } from '@/lib/auth';
+import { logOut } from "@/utils/auth";
 // import { ROLES, useAuthorization } from "@/lib/authorization";
 import { cn } from "@/lib/utils";
 
@@ -149,6 +150,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuItem
                 className={cn("block px-4 py-2 text-sm text-gray-700 w-full")}
                 // onClick={() => logout.mutate({})}
+                onClick={() => logOut(navigate)}
               >
                 Sign Out
               </DropdownMenuItem>

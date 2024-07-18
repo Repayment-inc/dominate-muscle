@@ -7,49 +7,26 @@ export async function registerUser(userData: {
   email: string;
   password: string;
 }) {
-  const response = await fetch("http://localhost:7000/api/auth/dregister", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (response.status === 400) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Invalid request");
+  try {
+    // if(response.)
+    const response = await apiClient.post("/auth/dregister", userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user regist:", error);
   }
-
-  if (!response.ok) {
-    throw new Error("Registration failed");
-  }
-
-  return response.json();
 }
 
 // ログインhook
 export async function loginUser(userData: { email: string; password: string }) {
-  const response = await fetch("http://localhost:7000/api/auth/dlogin", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Login failed");
+  try {
+    const response = await apiClient.post("/auth/dlogin", userData);
+    console.log(response.data.resultData);
+    localStorage.setItem("accessToken", response.data.resultData.accessToken);
+    localStorage.setItem("refreshToken", response.data.resultData.refreshToken);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching login:", error);
   }
-
-  const res = await response.json(); // JSONデータをawaitで待つ
-
-  console.log(res.resultData);
-
-  localStorage.setItem("accessToken", res.resultData.accessToken);
-  localStorage.setItem("refreshToken", res.resultData.refreshToken);
-
-  return res;
 }
 
 // ワークアウト履歴
@@ -107,5 +84,46 @@ export const addWorkout = async (formData: {
   } catch (error) {
     console.log(JSON.stringify(formData));
     console.error("Error:", error);
+  }
+};
+
+export const deleteWorkoutHistory = async (date: string) => {
+  try {
+    const response = await apiClient.post("/workouts/delete", { date });
+
+    if (response.status !== 200) {
+      const errorData = await response.data;
+      throw new Error(errorData.message || "Workout history deletion failed");
+    }
+
+    console.log("Workout history deleted successfully:", response.data);
+  } catch (error) {
+    console.error("Error deleting workout history:", error);
+  }
+};
+
+export const updateWorkoutHistory = async (workoutData: {
+  sessionId: number;
+  date: string;
+  sessionTitle: string;
+  workouts: Array<{
+    exerciseId: number;
+    sets: Array<{
+      setId: number;
+      setNumber: number;
+      weight: number;
+      reps: number;
+      status: "updated" | "unchanged" | "deleted" | "new";
+    }>;
+  }>;
+}) => {
+  try {
+    console.log("workoutData:", workoutData);
+    const response = await apiClient.post("/workouts/edit", workoutData);
+
+    console.log("Success:", response.data);
+  } catch (error) {
+    console.error("Error updating workout history:", error);
+    throw error;
   }
 };

@@ -1,5 +1,5 @@
 // import { QueryClient } from '@tanstack/react-query';
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 // import { ProtectedRoute } from '@/lib/auth';
 
@@ -23,8 +23,13 @@ export const createRouter = createBrowserRouter([
   {
     path: "/",
     lazy: async () => {
-      const { LandingRoute } = await import("./landing");
-      return { Component: LandingRoute };
+      // const { LandingRoute } = await import("./landing");
+      // return { Component: LandingRoute };
+      const redirectTo = "/app";
+
+      return {
+        Component: () => <Navigate to={redirectTo} replace />,
+      };
     },
   },
   {

@@ -2,17 +2,19 @@
 /// <reference path="../types/express/index.d.ts" />
 　**/
 
-import express, { Request, Response } from "express";
-// import { UnitUser, User, JwtToken } from "./users.interface";
+import express, { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-// import * as database from "./users.database";
-import { pool } from "../db/database";
-import jwt from "jsonwebtoken";
-import * as dotevnv from "dotenv";
-import { ApiResponse } from "../common/utils/response";
-import { logInfo, logError } from "../common/utils/logger";
-import { HistoryData } from "./workouts.interface";
+// import { logInfo, logError } from "../common/utils/logger";
 import authMiddleware from "../middleware/auth";
+import * as logic from "./workout.logic";
+import { createSuccessResponse } from "../common/utils/response";
+import { errorHandler } from "../middleware/error/errorHandler";
+import { AddWorkoutRequestBody, EditWorkoutRequestBody } from "./workout.type";
+import {
+  validateDate,
+  validateSessionTitle,
+  validateWorkout,
+} from "./workout.validation";
 
 export const workoutsRouter = express.Router();
 
@@ -20,191 +22,162 @@ export const workoutsRouter = express.Router();
 workoutsRouter.post(
   "/add",
   authMiddleware, // 認証ミドルウェアを適用
-  async (req: Request, res: Response) => {
-    const client = await pool.connect();
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { date, workout } = req.body; // parts: [{ part: '胸', exercises: [{ name: 'ベンチプレス', sets: [{ set_number: 1, reps: 10 }, ...] }, ...] }]
-
-      // トランザクションを開始
-      await client.query("BEGIN");
-
-      // ユーザーIDをログに出力
-      console.log("User ID:", req.user?.id);
+      const { date, sessionTitle, workout } = req.body;
       const userId = req.user?.id;
 
-      // セッションの登録とid取得
-      const workoutSessionRes = await client.query(
-        "INSERT INTO workout_sessions (user_id, date) VALUES ($1, $2) RETURNING id",
-        [userId, date]
+      // バリデーション
+      const dateError = validateDate(date);
+      if (dateError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, dateError));
+
+      const sessionTitleError = validateSessionTitle(sessionTitle);
+      if (sessionTitleError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, sessionTitleError));
+
+      const workoutError = validateWorkout(workout);
+      if (workoutError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, workoutError));
+
+      // ワークアウトをDBに追加
+      await logic.addWorkout({ date, sessionTitle, workout, userId });
+
+      // 返却用データ生成
+      const responseData = createSuccessResponse(
+        "ワークアウトの登録に成功しました。",
+        {}
       );
-      const sessionId = workoutSessionRes.rows[0].id;
-      console.log("sessionId = " + sessionId);
 
-      for (const exercise of workout) {
-        for (const set of exercise.sets) {
-          await client.query(
-            "INSERT INTO workout_sets (session_id, exercise_id, set_number, weight, reps) VALUES ($1, $2, $3, $4, $5)",
-            [
-              sessionId,
-              exercise.exerciseId,
-              set.setNumber,
-              set.weight,
-              set.reps,
-            ]
-          );
-        }
+      return res.status(StatusCodes.CREATED).json(responseData);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        next(errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+      } else {
+        next(
+          errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "原因不明のエラー")
+        );
       }
-
-      // 旧ソース 問題なければ削除
-      // for (const part of parts) {
-      //   const partIdRes = await client.query(
-      //     "SELECT id FROM workout_parts WHERE part = $1",
-      //     [part.part]
-      //   );
-      //   const partId = partIdRes.rows[0].id;
-
-      //   for (const exercise of part.exercises) {
-      //     const exerciseIdRes = await client.query(
-      //       "SELECT id FROM exercises WHERE name = $1",
-      //       [exercise.name]
-      //     );
-      //     const exerciseId = exerciseIdRes.rows[0].id;
-
-      //     const userExerciseRes = await client.query(
-      //       "SELECT id FROM user_exercises WHERE user_id = $1 AND part_id = $2 AND exercise_id = $3",
-      //       [userId, partId, exerciseId]
-      //     );
-      //     const userExerciseId = userExerciseRes.rows[0].id;
-
-      //     for (const set of exercise.sets) {
-      //       await client.query(
-      //         "INSERT INTO workout_sets (session_id, exercise_id, set_number, weight, reps) VALUES ($1, $2, $3, $4, $5)",
-      //         [sessionId, userExerciseId, set.set_number, set.weight, set.reps]
-      //       );
-      //     }
-      //   }
-      // }
-
-      await client.query("COMMIT");
-
-      return res
-        .status(StatusCodes.CREATED)
-        .json({ message: "set created successfully" });
-    } catch (error) {
-      // エラーが発生した場合、トランザクションをロールバック
-      await client.query("ROLLBACK");
-      console.error("Error adding workout:", error);
-      res.status(500).send("Error adding workout");
-    } finally {
-      client.release();
     }
   }
 );
 
+// workoutの削除
+workoutsRouter.post(
+  "/delete",
+  authMiddleware, // 認証ミドルウェアを適用
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { date } = req.body;
+      const userId = req.user?.id;
+
+      // バリデーションチェック
+      const dateError = validateDate(date);
+      if (dateError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, dateError));
+
+      // ワークアウトをDBに追加
+      await logic.deleteWorkout(date, userId);
+
+      // 返却用データ生成
+      const responseData = createSuccessResponse(
+        "ワークアウトの削除に成功しました。",
+        {}
+      );
+
+      return res.status(StatusCodes.CREATED).json(responseData);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        next(errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+      } else {
+        next(
+          errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "原因不明のエラー")
+        );
+      }
+    }
+  }
+);
+
+// workoutの編集
+// workoutの編集
+workoutsRouter.post(
+  "/edit",
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        sessionId,
+        date,
+        sessionTitle,
+        workouts,
+      }: EditWorkoutRequestBody = req.body;
+      const userId = req.user?.id;
+
+      // バリデーション
+      const sessionIdError = !sessionId
+        ? "セッションIDを入力してください"
+        : null;
+      if (sessionIdError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, sessionIdError));
+
+      const dateError = validateDate(date);
+      if (dateError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, dateError));
+
+      const sessionTitleError = validateSessionTitle(sessionTitle);
+      if (sessionTitleError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, sessionTitleError));
+
+      const workoutError = validateWorkout(workouts);
+      if (workoutError)
+        return next(errorHandler(StatusCodes.BAD_REQUEST, workoutError));
+
+      // ワークアウトをDBに更新
+      await logic.updateWorkout({ sessionId, date, sessionTitle, workouts });
+
+      // 返却用データ生成
+      const responseData = createSuccessResponse(
+        "ワークアウトの編集に成功しました。",
+        {}
+      );
+
+      return res.status(StatusCodes.CREATED).json(responseData);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        next(errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+      } else {
+        next(
+          errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "原因不明のエラー")
+        );
+      }
+    }
+  }
+);
+
+// ワークアウト履歴取得api
 workoutsRouter.post(
   "/history",
   authMiddleware,
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await pool.query(
-        `
-      SELECT 
-        u.id as user_id,
-        u.username,
-        wsessions.date,
-        bp.id as body_part_id,
-        bp.part as body_part_name,
-        ex.id as exercise_id,
-        ex.name as exercise_name,
-        wsets.set_number,
-        wsets.weight,
-        wsets.reps
-      FROM 
-        users u
-        JOIN workout_sessions wsessions ON u.id = wsessions.user_id
-        JOIN workout_sets wsets ON wsessions.id = wsets.session_id
-        JOIN exercises ex ON ex.id = wsets.exercise_id
-        JOIN body_parts bp ON bp.id = ex.body_part_id
-      WHERE
-        u.id = $1
-      ORDER BY 
-        wsessions.date DESC;
-      `,
-        [req.user?.id]
+      // ワークアウト履歴取得
+      const historyData = await logic.getWorkoutHistory(req.user?.id);
+
+      // 返却用データ生成
+      const responseData = createSuccessResponse(
+        "ワークアウト履歴の取得に成功しました",
+        historyData
       );
 
-      const rawData = result.rows;
-
-      const historyData: HistoryData = { workoutHistory: [] };
-      // const workoutHistory: WorkoutHistory[] = [];
-
-      rawData.forEach((row) => {
-        // 同じ日時のワークアウトを探す
-        let workout = historyData.workoutHistory.find(
-          (workout) =>
-            new Date(workout.date).getTime() === new Date(row.date).getTime()
-          // && workout.user_id === row.user_id
+      res.status(StatusCodes.OK).json(responseData);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        next(errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+      } else {
+        next(
+          errorHandler(StatusCodes.INTERNAL_SERVER_ERROR, "原因不明のエラー")
         );
-        if (!workout) {
-          // 同じ日時のワークアウトが見つからない場合、新しいワークアウトを作成
-          workout = {
-            // user_id: row.user_id,
-            // username: row.username,
-            date: new Date(row.date).toLocaleDateString("ja-JP", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            }),
-            workouts: [],
-          };
-          historyData.workoutHistory.push(workout);
-        }
-
-        // 同じ部位のワークアウトを探す
-        let title = workout.workouts.find(
-          (title) => title.title === row.body_part_name
-        );
-        // 同じ部位のワークアウトが見つからない場合、新しいワークアウトパートを作成
-        if (!title) {
-          title = { title: row.body_part_name, exercises: [] };
-          workout.workouts.push(title);
-        }
-
-        // 同じエクササイズを探す
-        let exercise = title.exercises.find(
-          (exercise) => exercise.exerciseId === row.exercise_id
-        );
-        if (!exercise) {
-          // 同じエクササイズが見つからない場合、新しいエクササイズを作成
-          exercise = {
-            exerciseId: row.exercise_id,
-            exerciseName: row.exercise_name,
-            partId: row.body_part_id,
-            partName: row.body_part_name,
-            sets: [],
-          };
-          title.exercises.push(exercise);
-        }
-
-        // エクササイズにセットを追加
-        exercise.sets.push({
-          set_number: row.set_number,
-          weight: row.weight,
-          reps: row.reps,
-        });
-      });
-
-      const responseData: ApiResponse<HistoryData> = {
-        resultCode: 0,
-        message: "",
-        resultData: historyData,
-      };
-
-      // res.json({ responseData });
-      res.json(responseData);
-    } catch (error) {
-      console.error(error);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+      }
     }
   }
 );
