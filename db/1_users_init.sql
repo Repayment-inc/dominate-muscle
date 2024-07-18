@@ -1,6 +1,6 @@
 -- 既存のテーブルがある場合に削除
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS refresh_tokens;
+-- DROP TABLE IF EXISTS refresh_tokens;
+-- DROP TABLE IF EXISTS users;
 
 -- ユーザーテーブルの作成
 CREATE TABLE IF NOT EXISTS users (
@@ -15,7 +15,7 @@ INSERT INTO users (username, email, password)
 VALUES 
 ('admin', 'admin@gmail.com', '$2a$10$yraCOyZ3Kg5VMLhCnRmqpuJW29MxjZqVPtR/eSt.IWjqeP30GI2RC'),
 ('admin2', 'admin2@gmail.com', '$2a$10$N7pg9q.wS8r40IkoIVEuWuWeRKKT.i/8yS0fWjjSakXmYi1vTHH82'),
-('user3', 'user3@example.com', 'password123');
+('test', 'test@gmail.com', '$2a$10$78dldwbmbbX87Hd4QkinL.GjoWUiY7EXqlD6VZyeD/WIOZeDCjpRW');
 
 
 -- Refresh Tokenテーブルの作成
