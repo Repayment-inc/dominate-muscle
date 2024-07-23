@@ -1,3 +1,16 @@
+初回ビルド
+
+npm i
+
+起動
+npm run dev
+
+
+Error: listen EADDRINUSE: address already in use :::7000のとき
+https://github.com/cookiecutter/cookiecutter-django/issues/3499
+
+
+
 ※※※※エラー※※※※
 ※1 middleware jwt 周りで下記エラー
 console.log("Authenticated user:", req.user); // ログに出力
