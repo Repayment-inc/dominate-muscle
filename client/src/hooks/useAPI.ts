@@ -1,4 +1,4 @@
-import apiClient from "@/api/apiClient";
+import apiClient from "@/lib/apiClient";
 // import { useApiClient } from "../hooks/useApiClient";
 
 // ユーザ新規登録hook

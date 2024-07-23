@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 import { Calendar } from "@/components/ui/calendar";
-import { ExerciseDialog } from "@/components/ExerciseDialog";
+import { ExerciseDialog } from "@/features/exercise/ExerciseDialog";
 import { useExercises } from "@/hooks/useExercises";
 import { useWorkoutEdit } from '@/hooks/useWorkoutEdit';
 import { useWorkoutHistory } from "@/hooks/useWorkoutHistory";

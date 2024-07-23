@@ -1,6 +1,6 @@
 // 今のところ使い道がわからん
 import { useNavigate } from "react-router-dom";
-import apiClient from "@/api/apiClient";
+import apiClient from "@/lib/apiClient";
 
 export const useApiClient = () => {
   const navigate = useNavigate();

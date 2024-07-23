@@ -8,15 +8,15 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 // import { AppRoot } from './app/root';
 // import { usersLoader } from './app/users';
 
-import { History } from "@/app/routes/pages/History";
-import LoginPage from "@/app/routes/pages/auth/LoginPage";
-import { RegisterPage } from "./pages/auth/RegisterPage";
-import { ProtectedRoutes } from "@/app/routes/pages/ProtectedRoutes";
+import { History } from "@/app/routes/app/History";
+import LoginPage from "@/app/routes/auth/login";
+import { RegisterPage } from "./auth/register";
+import { ProtectedRoutes } from "@/app/routes/protected-routes";
 // import { Dashboard } from "@/app/routes/pages/Dashboard";
 // import { TrainingPage } from "@/app/routes/pages/training/TrainingPage";
-import { Exercises } from "./pages/Exercises";
+import { Exercises } from "./app/Exercises";
 // import { useMemo } from "react";
-import { AppRoot } from "./pages/root";
+import { AppRoot } from "./app/root";
 
 // ブラウザRouterの初期化
 export const createRouter = createBrowserRouter([
@@ -54,7 +54,7 @@ export const createRouter = createBrowserRouter([
       {
         path: "",
         lazy: async () => {
-          const { Dashboard } = await import("./pages/Dashboard");
+          const { Dashboard } = await import("./app/Dashboard");
           return { Component: Dashboard };
         },
       },
@@ -64,7 +64,7 @@ export const createRouter = createBrowserRouter([
 
         path: "training",
         lazy: async () => {
-          const { TrainingPage } = await import("./pages/TrainingPage");
+          const { TrainingPage } = await import("./app/traning");
           return { Component: TrainingPage };
         },
         // loader: discussionsLoader(queryClient),

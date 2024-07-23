@@ -12,9 +12,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 // import { useLogout } from '@/lib/auth';
-import { logOut } from "@/utils/auth";
+import { logOut } from "@/features/auth/auth";
 // import { ROLES, useAuthorization } from "@/lib/authorization";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 import { GiMuscleUp } from "react-icons/gi";
 

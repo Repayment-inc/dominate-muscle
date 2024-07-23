@@ -1,7 +1,7 @@
 // import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router-dom";
 import { GiMuscleUp } from "react-icons/gi";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 type SideNavigationItem = {
   name: string;

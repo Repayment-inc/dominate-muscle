@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { WorkoutHistoryEntry } from "@/types/workoutHistoryTypes";
 // import { fetchWorkoutHistory } from "@/hooks/useAPI";
-import { groupByMonth, sortWorkouts } from "@/utils/workoutUtils";
+import { groupByMonth, sortWorkouts } from "@/features/workout/workoutUtils";
 
 export const useWorkoutHistory = () => {
   const [workoutHistory, setWorkoutHistory] = useState<WorkoutHistoryEntry[]>(

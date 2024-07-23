@@ -6,6 +6,7 @@ export type Set = {
   status?: "updated" | "unchanged" | "deleted" | "new";
 };
 
+// 一旦optionalにしてる。　改修予定
 type Workout = {
   exerciseId: number;
   exerciseName?: string;

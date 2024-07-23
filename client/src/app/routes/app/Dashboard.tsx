@@ -17,10 +17,10 @@ import { useWorkout } from "@/hooks/useWorkout";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import BodyPartChart from "@/components/dashboard/BodyPartChart";
-import ExerciseChart from "@/components/dashboard/ExerciseChart";
+import BodyPartChart from "@/features/dashboard/components/BodyPartChart";
+import ExerciseChart from "@/features/dashboard/components/ExerciseChart";
 // import WeeklyChart from "@/components/dashboard/WeeklyChart";
-import ExerciseLineChart from "@/components/dashboard/ExerciseLineChart";
+import ExerciseLineChart from "@/features/dashboard/components/ExerciseLineChart";
 // import { generateWeeklyDates } from "@/utils/utils";
 import {
   weeklyCount,
@@ -29,7 +29,7 @@ import {
   filterByFirstSet,
   sortData,
 } from "@/features/dashboard/dashboard";
-import { ExerciseDialog } from "@/components/ExerciseDialog";
+import { ExerciseDialog } from "@/features/exercise/ExerciseDialog";
 
 // import { Footer } from "@/components/notifications/organisms/Footer";
 

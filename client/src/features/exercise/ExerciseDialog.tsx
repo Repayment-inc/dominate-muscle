@@ -10,15 +10,15 @@ import {
 } from "@/components/ui/dialog";
 // import { Check, ChevronsUpDown } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { Button } from "./ui/button";
-import { BODY_PARTS } from "./common/constants";
+import { Button } from "@/components/ui/button";
+import { BODY_PARTS } from "@/lib/constants";
 
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "./ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 
 import {
   Command,

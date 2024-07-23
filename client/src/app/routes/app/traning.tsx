@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ExerciseDialog } from "@/components/ExerciseDialog";
+import { ExerciseDialog } from "@/features/exercise/ExerciseDialog";
 import { useExercises } from "@/hooks/useExercises";
 import { useWorkout } from "@/hooks/useWorkout";
 

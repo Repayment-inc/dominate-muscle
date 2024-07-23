@@ -1,4 +1,4 @@
-import { groupByWeek } from "@/utils/utils";
+import { groupByWeek } from "@/features/history/history";
 import { WorkoutHistoryEntry } from "@/types/workoutHistoryTypes";
 
 // workout履歴を週ごとにグループ化し、週ごとのワークアウト数をカウントする
