@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 // import { Check, ChevronsUpDown } from "lucide-react";
-import { TableRow, TableCell } from "@/components/ui/table";
+// import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { BODY_PARTS } from "@/lib/constants";
 
@@ -86,8 +86,15 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
               <DropdownMenuItem key={index}>
                 <span
                   onClick={() => {
-                    setSelectedBodyPartId(bodyPart.id);
+                    setSelectedBodyPartId((prevSelectedBodyPartId) =>
+                      prevSelectedBodyPartId === bodyPart.id ? null : bodyPart.id
+                    );
                   }}
+                  className={
+                    selectedBodyPartId === bodyPart.id
+                      ? "text-blue-400 font-bold"
+                      : ""
+                  }
                 >
                   {bodyPart.name}
                 </span>
@@ -98,10 +105,10 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
 
         {/* Exerciseサーチボックス */}
         <Command className="rounded-lg border shadow-md max-h-[350px]">
-          <CommandInput placeholder="Type a command or search..." />
-          <CommandList className="">
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Suggestions">
+          <CommandInput placeholder="エクササイズを検索..." />
+          <CommandList>
+            <CommandEmpty>結果が見つかりません。</CommandEmpty>
+            <CommandGroup heading="エクササイズ一覧">
               {exercises
                 .filter(
                   (exercise) =>
@@ -110,7 +117,7 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
                 )
                 .map((exercise, index) => (
                   <CommandItem key={`${exercise.exerciseId}-${index}`}>
-                    <span className="hidden">{exercise.exerciseName}</span>
+                    {/* <span className="hidden">{exercise.exerciseName}</span>
                     <TableRow
                       onClick={() =>
                         onExerciseSelect(
@@ -128,7 +135,25 @@ export const ExerciseDialog: React.FC<ExerciseDialogProps> = ({
                       <TableCell className="font-medium">
                         {exercise.exerciseName}
                       </TableCell>
-                    </TableRow>
+                    </TableRow> */}
+                    <div
+                      className="flex items-center w-full cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      onClick={() =>
+                        onExerciseSelect(
+                          exercise.exerciseId,
+                          exercise.exerciseName,
+                        )
+                      }
+                    >
+                      <div className="flex-shrink-0 w-20 p-2">
+                        <div className="h-10 rounded-full bg-sky-100 flex items-center justify-center text-sm">
+                          {exercise.bodyPartName}
+                        </div>
+                      </div>
+                      <div className="flex-grow font-medium">
+                        {exercise.exerciseName}
+                      </div>
+                    </div>
                   </CommandItem>
                 ))}
             </CommandGroup>

@@ -1,16 +1,19 @@
 import {
   // Home,
   PanelLeft,
-  Folder,
+  // Folder,
   // Users,
   User2,
+  LayoutDashboard,
+  History,
+  Rows3,
 } from "lucide-react";
 // import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 // import logo from "@/assets/logo.svg";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle } from "@/components/ui/drawer";
 // import { useLogout } from '@/lib/auth';
 import { logOut } from "@/features/auth/auth";
 // import { ROLES, useAuthorization } from "@/lib/authorization";
@@ -38,11 +41,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   //   const { checkAccess } = useAuthorization();
   const navigate = useNavigate();
   const navigation = [
-    { name: "ダッシュボード", to: ".", icon: Folder },
+    { name: "ダッシュボード", to: ".", icon: LayoutDashboard },
     { name: "<トレーニング開始>", to: "./training", icon: GiMuscleUp },
     // { name: 'Discussions', to: './discussions', icon: Folder },
-    { name: "履歴", to: "./history", icon: Folder },
-    { name: "エクササイズ一覧", to: "./exercises", icon: Folder },
+    { name: "履歴", to: "./history", icon: History },
+    { name: "エクササイズ一覧", to: "./exercises", icon: Rows3 },
     // checkAccess({ allowedRoles: [ROLES.ADMIN] }) && {
     //   name: 'Users',
     //   to: './users',
@@ -100,6 +103,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             >
               <nav className="grid gap-6 text-lg font-medium">
                 <div className="flex h-16 shrink-0 items-center px-4">
+                <DrawerTitle className="sr-only">Navigation Menu</DrawerTitle>
                   {/* <Logo /> */}
                 </div>
                 {navigation.map((item) => (

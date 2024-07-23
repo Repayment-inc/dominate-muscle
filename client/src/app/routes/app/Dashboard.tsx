@@ -208,7 +208,9 @@ export const Dashboard: React.FC = () => {
             />
             {/* <Button onClick={removeExercise}>種目を削除</Button> */}
           </div>
-          <ExerciseLineChart data={sortedData} />
+          <div className={ selectedExerciseId === 0 ? "hidden" : "" }>
+            <ExerciseLineChart data={sortedData} />
+          </div>
         </TabsContent>
 
         <TabsContent value="WeeklyChart">

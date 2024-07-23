@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -49,7 +49,7 @@ export const History: React.FC = () => {
   const [selectedWorkout, setselectedWorkout] =
     useState<WorkoutHistoryEntry | null>(null);
 
-  const { workoutHistory, sortOrder, toggleSortOrder, groupedWorkouts } = useWorkoutHistory();
+  const { sortOrder, toggleSortOrder, groupedWorkouts } = useWorkoutHistory();
 
   const toggleDialog = () => {
     setDialogOpen(!isDialogOpen);
@@ -120,19 +120,18 @@ export const History: React.FC = () => {
                     <CardHeader>
                       <CardTitle>{entry.date}</CardTitle>
                       <CardDescription>
-                        <div className="font-bold">{entry.sessionTitle}</div>
+                        <span className="font-bold">{entry.sessionTitle}</span>
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       {entry.workouts.map((workout, idx) => (
-                        // <div >
                         <div key={idx} className="flex items-center gap-2">
-                          <p className="text-gray-500 text-sm">
+                          <span className="text-gray-500 text-sm">
                             {workout.exerciseName}
-                          </p>
-                          <p className="text-gray-500 text-sm">
+                          </span>
+                          <span className="text-gray-500 text-sm">
                             {workout.sets.length}セット
-                          </p>
+                          </span>
                         </div>
                       ))}
                     </CardContent>
@@ -149,9 +148,9 @@ export const History: React.FC = () => {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <h3 className="text-center">
-                    {selectedWorkout.date} ワークアウト内容
-                  </h3>
+                  <DialogTitle>
+                    ワークアウト内容
+                  </DialogTitle>
                   {/* 履歴編集ボタン */}
                   <Popover>
                     <PopoverTrigger asChild>
