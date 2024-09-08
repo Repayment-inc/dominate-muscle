@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "api",
+    "typeRoots": ["./node_modules/@types", "api/express/types"],
+    "types": ["express"] // これ追加してから、types/express/index.d.tsを読み込んでくれるようになった?
+  },
+  "include": ["api/**/*"],
+  "exclude": ["node_modules"] //依存関係の除外, コンパイル時間短縮,　エラー回避のため
+}
