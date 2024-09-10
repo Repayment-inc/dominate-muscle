@@ -109,7 +109,7 @@ export const useWorkout = () => {
     const formData = {
       date,
       sessionTitle,
-      workout: workoutData,
+      workouts: workoutData,
     };
 
     try {

@@ -17,7 +17,8 @@ export const fetchWorkoutHistory = async () => {
 
 export const addWorkout = async (formData: {
   date: string;
-  workout: Array<{
+  sessionTitle: string;
+  workouts: Array<{
     exerciseId: number;
     sets: Array<{
       setNumber: number;
