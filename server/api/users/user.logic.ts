@@ -78,7 +78,7 @@ export const generateTokens = async (userId: number): Promise<TokenData> => {
     { id: userId },
     process.env.JWT_SECRET as string,
     {
-      expiresIn: "15m",
+      expiresIn: "60m",
     }
   );
   const refreshToken = jwt.sign(

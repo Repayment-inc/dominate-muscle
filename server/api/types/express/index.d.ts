@@ -6,4 +6,5 @@ declare global {
       user?: JwtPayload;
     }
   }
+  type OmitStrict<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 }

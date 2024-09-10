@@ -39,32 +39,56 @@ export type HistoryData = {
   workoutHistory: WorkoutHistory[];
 };
 
-// add-remove用
-export type Set = {
-  setId?: number;
+
+
+type BaseSet = {
   setNumber: number;
   weight: number;
   reps: number;
-  status?: string;
-};
+}
 
-export type Exercise = {
+export type BaseExercise = {
   exerciseId: number;
   // exerciseName: string;
-  sets: Set[];
+  // sets: Set[];
 };
 
-export type AddWorkoutRequestBody = {
+// ワークアウト追加 start
+type AddSet = BaseSet;
+type AddExercise = BaseExercise & {
+  sets: AddSet[];
+};
+/**
+ * ワークアウト追加
+ */
+type AddWorkoutType = {
+  userId: number;
   date: string;
   sessionTitle: string;
-  workout: Exercise[];
-  userId: number;
+  workouts: AddExercise[];
 };
+// ワークアウト追加 end
 
-export type EditWorkoutRequestBody = {
+// ワークアウト編集 start
+export type EditSet = BaseSet & {
+  setId: number;
+  status: string;
+};
+export type EditExercise = BaseExercise & {
+  sets: EditSet[];
+};
+/**
+ * ワークアウト編集
+ */
+type EditWorkoutType = {
   sessionId: number;
   date: string;
   sessionTitle: string;
-  workouts: Exercise[];
+  workouts: EditExercise[];
   // userId: number;
 };
+// ワークアウト編集 end
+
+
+
+export { AddWorkoutType, EditWorkoutType}
