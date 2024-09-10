@@ -1,8 +1,7 @@
 import {
   HistoryData,
-  Exercise,
-  AddWorkoutRequestBody,
-  EditWorkoutRequestBody,
+  AddWorkoutType,
+  EditWorkoutType,
 } from "./workout.type";
 import { pool } from "../db/database";
 import { formatDate } from "../common/utils/utils";
@@ -114,9 +113,9 @@ export const getWorkoutHistory = async (
 export const addWorkout = async ({
   date,
   sessionTitle,
-  workout,
+  workouts,
   userId,
-}: AddWorkoutRequestBody): Promise<void> => {
+}: AddWorkoutType): Promise<void> => {
   const client = await pool.connect();
   try {
     // トランザクションを開始
@@ -131,7 +130,7 @@ export const addWorkout = async ({
     console.log("sessionId = " + sessionId);
 
     let exerciseOrder = 1;
-    for (const exercise of workout) {
+    for (const exercise of workouts) {
       for (const set of exercise.sets) {
         console.log(exerciseOrder);
         await client.query(
@@ -205,7 +204,7 @@ export const updateWorkout = async ({
   sessionTitle,
   workouts,
 }: // userId,
-EditWorkoutRequestBody): Promise<void> => {
+EditWorkoutType): Promise<void> => {
   const client = await pool.connect();
   try {
     // トランザクションを開始

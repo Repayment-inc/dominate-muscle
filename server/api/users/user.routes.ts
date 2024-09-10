@@ -10,33 +10,21 @@ import {
   SystemError,
 } from "../common/utils/response";
 import { logInfo, logError } from "../common/utils/logger";
-import {
-  // userValidation,
-  validateEmail,
-  validatePassword,
-} from "./user.validation";
 import { errorHandler } from "../middleware/error/errorHandler";
 import authMiddleware from "../middleware/auth";
+import { validateRequest } from "../middleware/validateRequest";
+import { UserSchema, LoginSchema } from "./user.schema";
 
 export const userRouter = express.Router();
+
 
 // ユーザーを登録する
 userRouter.post(
   "/dregister",
+  validateRequest(UserSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { username, email, password } = req.body;
-
-      if (!username)
-        return next(errorHandler(400, "ユーザー名を入力してください"));
-
-      // メール入力チェック
-      const emailError = validateEmail(email);
-      if (emailError) return next(errorHandler(400, emailError));
-
-      // パスワード入力チェック
-      const passwordError = validatePassword(password);
-      if (passwordError) return next(errorHandler(400, passwordError));
 
       // 既存ユーザチェック;
       const checkResult = await logic.checkEmailExists(email);
@@ -74,26 +62,17 @@ userRouter.post(
 );
 
 // ログイン
-userRouter.post("/dlogin", async (req: Request, res: Response, next) => {
+userRouter.post("/dlogin", validateRequest(LoginSchema), async (req: Request, res: Response, next) => {
   try {
     const { email, password } = req.body;
 
-    // 入力チェック
-    const requiredFields = ["email", "password"]; // 必須フィールドを配列で定義
-    const missingFields = requiredFields.filter((field) => !req.body[field]); // 未入力項目を配列で定義
-
-    if (missingFields.length > 0) {
-      const missingFieldsMessage =
-        missingFields.join("、") + "を入力してください";
-      return next(errorHandler(StatusCodes.BAD_REQUEST, missingFieldsMessage));
-    }
-
+    // ユーザ確認;
     const checkResult = await logic.checkEmailExists(email);
     if (!checkResult) {
       // logInfo(`No user found for email: ${email}`, 90);
       return next(
         errorHandler(
-          StatusCodes.NOT_FOUND,
+          StatusCodes.BAD_REQUEST,
           "ユーザが見つかりませんでした。正しいメールアドレスかどうか確認してください"
         )
       );

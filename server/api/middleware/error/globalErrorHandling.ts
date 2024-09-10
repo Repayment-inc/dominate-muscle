@@ -1,27 +1,29 @@
-import { Request, Response, NextFunction } from "express";
-import { CustomError } from "./errorHandler";
-import {
-  SystemError,
-  ApplicationError,
-  ApiResponse,
-  ResultCode,
-} from "../../common/utils/response";
+import { Request, Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
+import { CustomError } from './errorHandler';
+import { SystemError, ApplicationError, ApiResponse } from '../../common/utils/response';
 
 export const globalErrorHandling = (
-  err: CustomError,
+  err: Error | ZodError | CustomError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const statusCode = err.statusCode || 500;
   let response: ApiResponse<void>;
 
-  if (statusCode >= 500) {
-    console.error(err.message); // エラーメッセージを内部ログに記録
-    response = SystemError();
-  } else {
-    response = ApplicationError(err.message);
+  if (err instanceof ZodError) {
+    console.log(err.errors);
+    response = ApplicationError(err.errors.map(e => e.message).join(', '));
+    return res.status(400).json(response);
   }
 
-  res.status(statusCode).json(response);
+  if (err instanceof CustomError) {
+    const statusCode = err.statusCode || 500;
+    response = statusCode >= 500 ? SystemError() : ApplicationError(err.message);
+    return res.status(statusCode).json(response);
+  }
+
+  console.error(err);
+  response = SystemError();
+  res.status(500).json(response);
 };

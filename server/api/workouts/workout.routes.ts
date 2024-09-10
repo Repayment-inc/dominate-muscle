@@ -9,12 +9,9 @@ import authMiddleware from "../middleware/auth";
 import * as logic from "./workout.logic";
 import { createSuccessResponse } from "../common/utils/response";
 import { errorHandler } from "../middleware/error/errorHandler";
-import { AddWorkoutRequestBody, EditWorkoutRequestBody } from "./workout.type";
-import {
-  validateDate,
-  validateSessionTitle,
-  validateWorkout,
-} from "./workout.validation";
+import { validateRequest } from "../middleware/validateRequest";
+import { AddWorkoutType, EditWorkoutType } from "./workout.type";
+import { AddWorkoutReqSchema, EditWorkoutReqSchema } from "./workout.schema";
 
 export const workoutsRouter = express.Router();
 
@@ -22,26 +19,14 @@ export const workoutsRouter = express.Router();
 workoutsRouter.post(
   "/add",
   authMiddleware, // 認証ミドルウェアを適用
+  validateRequest(AddWorkoutReqSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { date, sessionTitle, workout } = req.body;
+      const { date, sessionTitle, workouts } = req.body;
       const userId = req.user?.id;
 
-      // バリデーション
-      const dateError = validateDate(date);
-      if (dateError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, dateError));
-
-      const sessionTitleError = validateSessionTitle(sessionTitle);
-      if (sessionTitleError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, sessionTitleError));
-
-      const workoutError = validateWorkout(workout);
-      if (workoutError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, workoutError));
-
       // ワークアウトをDBに追加
-      await logic.addWorkout({ date, sessionTitle, workout, userId });
+      await logic.addWorkout({ date, sessionTitle, workouts, userId });
 
       // 返却用データ生成
       const responseData = createSuccessResponse(
@@ -72,11 +57,8 @@ workoutsRouter.post(
       const userId = req.user?.id;
 
       // バリデーションチェック
-      const dateError = validateDate(date);
-      if (dateError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, dateError));
 
-      // ワークアウトをDBに追加
+      // ワークアウトをDBに削除
       await logic.deleteWorkout(date, userId);
 
       // 返却用データ生成
@@ -103,6 +85,7 @@ workoutsRouter.post(
 workoutsRouter.post(
   "/edit",
   authMiddleware,
+  validateRequest(EditWorkoutReqSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
@@ -110,27 +93,7 @@ workoutsRouter.post(
         date,
         sessionTitle,
         workouts,
-      }: EditWorkoutRequestBody = req.body;
-      const userId = req.user?.id;
-
-      // バリデーション
-      const sessionIdError = !sessionId
-        ? "セッションIDを入力してください"
-        : null;
-      if (sessionIdError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, sessionIdError));
-
-      const dateError = validateDate(date);
-      if (dateError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, dateError));
-
-      const sessionTitleError = validateSessionTitle(sessionTitle);
-      if (sessionTitleError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, sessionTitleError));
-
-      const workoutError = validateWorkout(workouts);
-      if (workoutError)
-        return next(errorHandler(StatusCodes.BAD_REQUEST, workoutError));
+      }: EditWorkoutType = req.body;
 
       // ワークアウトをDBに更新
       await logic.updateWorkout({ sessionId, date, sessionTitle, workouts });
