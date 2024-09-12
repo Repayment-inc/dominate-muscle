@@ -1,4 +1,6 @@
 "use client";
+
+import { useState } from "react";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 
 import {
@@ -8,7 +10,6 @@ import {
   // Users,
   User2,
 } from "lucide-react";
-// import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 
 // import logo from "@/assets/logo.svg";
@@ -16,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 // import { useLogout } from '@/lib/auth';
 import { useAuth } from "@/hooks/use-auth";
-// import { ROLES, useAuthorization } from "@/lib/authorization";
+// import { ROLES, useAuthorization } from "@/lib/authorization
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import logoSrc from '@/app/assets/images/hero-logo.png';
@@ -42,6 +43,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { logout } = useAuth();
   //   const { checkAccess } = useAuthorization();
   const router = useRouter();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);  
+
   const navigation = [
     { name: "ダッシュボード", to: "./dashboard", icon: Folder },
     { name: "<トレーニング開始>", to: "./workout", icon: GiMuscleUp },
@@ -54,6 +57,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     //   icon: Users,
     // },
   ].filter(Boolean) as SideNavigationItem[];
+
+    // リンクをクリックしたときにDrawerを閉じる関数
+    const handleLinkClick = () => {
+      setIsDrawerOpen(false);
+    };
 
   return (
     <ProtectedRoute>
@@ -96,47 +104,48 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
       </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-60">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:justify-end sm:border-0 sm:bg-transparent sm:px-6">
-          {/* <Progress /> */}
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelLeft className="size-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent
-              side="left"
-              className="bg-black pt-10 text-white sm:max-w-60"
-            >
-              <nav className="grid gap-6 text-lg font-medium">
-                <div className="flex h-16 shrink-0 items-center px-4">
-                  {/* <Logo /> */}
-                </div>
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.to}
-                    className={cn(
+      
+      {/* スマホ用UI */}
+        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-60">
+            <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:justify-end sm:border-0 sm:bg-transparent sm:px-6">
+            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button size="icon" variant="outline" className="sm:hidden">
+                  <PanelLeft className="size-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent
+                side="left"
+                className="bg-black pt-10 text-white sm:max-w-60"
+              >
+                <nav className="grid gap-6 text-lg font-medium">
+                  <div className="flex h-16 shrink-0 items-center px-4">
+                    {/* <Logo /> */}
+                  </div>
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.to}
+                      className={cn(
                         "text-gray-300 hover:bg-gray-700 hover:text-white",
                         "group flex flex-1 w-full items-center rounded-md p-2 text-base font-medium",
-                      )
-                    }
-                  >
-                    <item.icon
-                      className={cn(
-                        "text-gray-400 group-hover:text-gray-300",
-                        "mr-4 size-6 shrink-0",
                       )}
-                      aria-hidden="true"
-                    />
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
-            </DrawerContent>
-          </Drawer>
+                      onClick={handleLinkClick}
+                    >
+                      <item.icon
+                        className={cn(
+                          "text-gray-400 group-hover:text-gray-300",
+                          "mr-4 size-6 shrink-0",
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  ))}
+                </nav>
+              </DrawerContent>
+            </Drawer>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -158,7 +167,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className={cn("block px-4 py-2 text-sm text-gray-700 w-full")}
-                // onClick={() => logout.mutate({})}
                 onClick={() => logout()}
               >
                 Sign Out

@@ -8,6 +8,7 @@ import { useExercises } from "@/hooks/useExercises";
 import { useWorkout } from "@/hooks/useWorkout";
 import WeightPicker from "@/components/workout/WeightPicker";
 import { Card } from "@/components/ui/card";
+import RepPicker from "@/components/workout/RepPicker";
 
 export default function WorkoutPage() {
   const { exercises, loading, error } = useExercises();
@@ -76,12 +77,12 @@ export default function WorkoutPage() {
         {[...Array(exerciseCount)].map((_, exerciseIndex) => (
           <div key={exerciseIndex}>
             <div
-              className="flex w-full max-w-sm justify-start items-center gap-1.5 border border-blue-400"
+              className="flex w-full max-w-sm justify-start items-center gap-1.5"
               id="exercise"
             >
               <Label className="w-80 text-left">種目は?</Label>
 
-              <div className="flex flex-col w-[1000px]">
+              <div className="flex flex-col w-[800px]">
                 <div>{`${selectedExercises[exerciseIndex].exerciseName}`}</div>
 
                 <div>
@@ -93,7 +94,7 @@ export default function WorkoutPage() {
                         id="set"
                       >
                         <Label>{`${set.setNumber}セット目`}</Label>
-                        {/* <Input
+                        <Input
                           type="number"
                           className="w-20"
                           placeholder="kg"
@@ -106,8 +107,8 @@ export default function WorkoutPage() {
                               e.target.value
                             )
                           }
-                        /> */}
-                        <WeightPicker
+                        />
+                        {/* <WeightPicker
                           value={set.weight.toString()}
                           onChange={(value) =>
                             handleSetChange(
@@ -117,7 +118,7 @@ export default function WorkoutPage() {
                               value
                             )
                           }
-                        />
+                        /> */}
                         <div>kg</div>
                         <Input
                           type="number"
@@ -133,6 +134,17 @@ export default function WorkoutPage() {
                             )
                           }
                         />
+                        {/* <RepPicker
+                          value={set.reps.toString()}
+                          onChange={(value) =>
+                            handleSetChange(
+                              exerciseIndex,
+                              setIndex,
+                              "reps",
+                              value
+                            )
+                          }
+                        /> */}
                         <div>Rep</div>
                       </div>
                     )

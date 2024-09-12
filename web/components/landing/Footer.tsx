@@ -3,8 +3,8 @@ import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
 export const Footer = () => {
   return (
     <footer className="bg-background border-t">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      {/* <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8"> */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-primary">会社情報</h2>
             <ul className="space-y-2">
@@ -46,15 +46,16 @@ export const Footer = () => {
               </a>
             </div>
           </div>
-        </div>
-        <div className="mt-8 border-t pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} 会社名. All rights reserved.</p>
-          <nav className="flex space-x-4 mt-4 md:mt-0">
+        </div> */}
+        <div className="mt-4 flex flex-col justify-between items-center">
+        {/* <div className="mt-8 border-t pt-8 flex flex-col md:flex-row justify-between items-center"> */}
+          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Repayment, inc. All rights reserved.</p>
+          {/* <nav className="flex space-x-4 mt-4 md:mt-0">
             <a href="/privacy" className="text-sm text-muted-foreground hover:text-primary">プライバシーポリシー</a>
             <a href="/terms" className="text-sm text-muted-foreground hover:text-primary">利用規約</a>
-          </nav>
+          </nav> */}
         </div>
-      </div>
+      {/* </div> */}
     </footer>
   )
 }
